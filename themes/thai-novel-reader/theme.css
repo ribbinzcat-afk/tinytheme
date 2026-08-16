@@ -1,0 +1,755 @@
+/* =========================================================================
+   Thai Novel Reader — theme.css (structure)
+   A SillyTavern theme pack for the TinyTheme engine: reskins the chat as
+   a Thai web-novel reading page (readawrite.com-style layout) — centered
+   paper card, indented paragraphs, chapter-style message headers, no
+   chat bubbles.
+
+   This file must use ONLY var(--tt-*) — no raw hex, no hardcoded font
+   names outside the two explicitly-fixed UI fonts noted below. Palette
+   values and @font-face rules are NOT here; the engine injects those
+   separately (see THEME-AUTHORING.md §2 "The three <style> blocks").
+   ========================================================================= */
+
+/* 1. Map SmartTheme vars → our palette, plus the two structural font
+   stacks. --tt-prose-font is user-tunable (Stage 4); --mainFontFamily
+   (general UI: menus, settings, World Info, Prompt Manager) is NOT —
+   novel display fonts render small in tiny UI rows, so the general UI
+   always stays on a plain, legible stack regardless of what the reader
+   picks for prose. */
+:root {
+  --SmartThemeBodyColor: var(--tt-text) !important;
+  --SmartThemeEmColor: var(--tt-text-muted) !important;
+  --SmartThemeUnderlineColor: var(--tt-accent) !important;
+  --SmartThemeQuoteColor: var(--tt-text) !important;
+  --SmartThemeBorderColor: var(--tt-line) !important;
+  --SmartThemeBlurTintColor: var(--tt-card) !important;
+  --SmartThemeChatTintColor: var(--tt-page) !important;
+  --mainFontFamily: 'Sarabun', 'Noto Sans', sans-serif !important;
+  --monoFontFamily: 'Noto Sans Mono', 'Courier New', monospace !important;
+}
+
+/* 2. Base ----------------------------------------------------------------*/
+body {
+  font-family: 'Sarabun', 'Noto Sans', sans-serif !important;
+  background-color: var(--tt-page) !important;
+}
+
+* {
+  text-shadow: none !important;
+}
+
+img, .avatar img {
+  filter: grayscale(var(--tt-grayscale)) contrast(var(--tt-contrast));
+}
+
+::-webkit-scrollbar {
+  width: 8px !important;
+  background: transparent !important;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--tt-line) !important;
+  border-radius: 4px !important;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--tt-accent) !important;
+}
+
+/* 3. #chat / #sheld — the paper page ------------------------------------*/
+#sheld {
+  background: var(--tt-page) !important;
+}
+
+#chat {
+  background-color: var(--tt-page) !important;
+  border: none !important;
+  padding: 24px 0 !important;
+  box-shadow: none !important;
+}
+
+/* 4. .mes — one chapter block --------------------------------------------*/
+.mes {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  width: 100% !important;
+  max-width: calc(var(--tt-column-width) + 80px) !important;
+  margin: 0 auto !important;
+  padding: 36px 28px !important;
+  background: var(--tt-card) !important;
+  box-shadow: none !important;
+}
+
+.mes + .mes {
+  border-top: 1px solid var(--tt-line) !important;
+  margin-top: 4px !important;
+}
+
+.mes[is_system="true"] {
+  background: var(--tt-card-alt) !important;
+}
+
+/* 5. ch_name / name_text — chapter header, centered like "โดย : ผู้เขียน"
+   NOTE: body.documentstyle (chat_display: 2) forces .mesAvatarWrapper,
+   .name_text, .timestamp and non-last .mes_buttons to display:none via
+   !important in toggle-dependent.css, using long, high-specificity
+   selectors. An !important declaration beats another !important
+   declaration by SPECIFICITY first, source order only second — so a bare
+   `.name_text { display: ... !important }` here still loses. We must
+   match ST's own selector strings exactly to win on equal specificity
+   plus later source order. (The theme also works fine in Flat/Bubbles
+   mode — these rules simply don't match there, since nothing is hidden
+   to begin with.) */
+body.documentstyle #chat .mes .mesAvatarWrapper {
+  display: grid !important;
+}
+body.documentstyle #chat .mes .mes_block .ch_name .name_text {
+  display: inline-block !important;
+}
+body.documentstyle #chat .mes .mes_block .ch_name .timestamp {
+  display: block !important;
+}
+body.documentstyle .mes:not(.last_mes) .ch_name .mes_buttons {
+  display: flex !important;
+}
+/* ...but while THAT message is being edited, ST hides .mes_buttons via a
+   plain (non-!important) inline style, which our !important rule above
+   would otherwise clobber, leaving it visible on top of .mes_edit_buttons.
+   :has(.edit_textarea) detects the edit-in-progress state (ST appends
+   that textarea into .mes_text while editing) and re-hides it, winning
+   over the rule above via one extra pseudo-class of specificity. */
+body.documentstyle .mes:not(.last_mes):has(.edit_textarea) .ch_name .mes_buttons {
+  display: none !important;
+}
+/* Document style also indents the prose 20px to make room for an avatar
+   that isn't there in this layout (ours lives in .mesAvatarWrapper, not
+   inline with .mes_text) — a plain (non-!important) declaration, so any
+   !important override wins regardless of specificity. Left unfixed, the
+   prose column sits 20px off-center from the chapter title/divider above
+   it whenever Document mode is on. */
+body.documentstyle #chat .mes .mes_text {
+  margin-left: 0 !important;
+}
+
+/* Grid, not flex: avatar sits alone on row 1, spanning all 3 columns;
+   mesIDDisplay/mes_timer/tokenCounterDisplay sit side-by-side on row 2,
+   one per column, forming a small stats caption under the avatar. Flexbox
+   can't do this without an extra wrapper element (each direct child of a
+   flex container gets its own line in a column-direction flex), so this
+   needs grid's explicit row/column placement instead — see the three
+   `grid-row: 2` rules below. */
+.mesAvatarWrapper {
+  order: 1 !important;
+  grid-template-columns: repeat(3, auto) !important;
+  grid-template-rows: auto auto !important;
+  justify-content: center !important;
+  align-items: center !important;
+  row-gap: 4px !important;
+  column-gap: 6px !important;
+  margin: 0 auto 10px auto !important;
+  padding-bottom: 0 !important;
+  flex-shrink: 0 !important;
+}
+
+.last_mes .mesAvatarWrapper {
+  padding-bottom: 0 !important;
+}
+
+.mesAvatarWrapper .avatar {
+  grid-row: 1 !important;
+  grid-column: 1 / -1 !important;
+  justify-self: center !important;
+}
+
+.mesAvatarWrapper .avatar,
+.mesAvatarWrapper .avatar img {
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 50% !important;
+  border: 1px solid var(--tt-line) !important;
+  box-shadow: none !important;
+}
+
+.ch_name {
+  order: 2 !important;
+  width: 100% !important;
+  max-width: var(--tt-column-width) !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  margin-bottom: 18px !important;
+  padding-bottom: 14px !important;
+  border-bottom: 1px solid var(--tt-line) !important;
+  /* deliberately NOT position:relative — .mes_buttons/.mes_edit_buttons
+     below anchor to .mes itself (already position:relative by default
+     in style.css), not to this centered, content-width header. Anchoring
+     to .ch_name instead put the button row right next to the title text
+     whenever the title was short, reading as an overlap. */
+}
+
+.ch_name .flex-container.flex1,
+.ch_name .flex-container.alignItemsBaseline {
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+}
+
+.name_text {
+  font-family: var(--tt-prose-font) !important;
+  font-size: 26px !important;
+  font-weight: 600 !important;
+  color: var(--tt-text-strong) !important;
+  line-height: 1.6 !important;
+}
+
+.mes[is_user="true"] .name_text::before {
+  content: "โดย : " !important;
+  font-weight: 400 !important;
+  font-size: 14px !important;
+  color: var(--tt-text-muted) !important;
+}
+
+.ch_name .timestamp {
+  order: 3 !important;
+  font-size: 12px !important;
+  color: var(--tt-text-muted) !important;
+  margin-top: 4px !important;
+}
+
+/* Buttons float to the corner instead of sitting inline in the header.
+   IMPORTANT: do not force `display` here. SillyTavern toggles
+   .mes_buttons vs .mes_edit_buttons itself (edit mode swaps one for the
+   other); .mes_edit_buttons defaults to `display: none` in style.css and
+   only becomes visible via ST's own inline style when editing. Forcing
+   `display: flex !important` on both — as an earlier version of this
+   theme did — defeats that toggle and stacks all seven edit-mode icons
+   directly on top of the seven-icon normal row, both permanently visible
+   and overlapping the centered chapter name. Position/opacity are safe
+   to force since they don't gate visibility. */
+.ch_name .mes_buttons,
+.ch_name .mes_edit_buttons {
+  position: absolute !important;
+  top: 14px !important;
+  right: 18px !important;
+  opacity: 0.35 !important;
+  transition: opacity var(--animation-duration, 125ms) ease !important;
+}
+
+.mes:hover .mes_buttons,
+.mes:hover .mes_edit_buttons {
+  opacity: 1 !important;
+}
+
+.mes_button, .mes_edit_buttons .menu_button {
+  color: var(--tt-text-muted) !important;
+}
+
+.mes_button:hover {
+  color: var(--tt-accent) !important;
+}
+
+/* 6. mes_text — the actual novel prose -----------------------------------*/
+.mes_block {
+  order: 4 !important;
+  width: 100% !important;
+  max-width: var(--tt-column-width) !important;
+  margin: 0 !important;
+}
+
+.mes_text {
+  font-family: var(--tt-prose-font) !important;
+  font-size: var(--tt-prose-size) !important;
+  line-height: var(--tt-prose-line-height) !important;
+  color: var(--tt-text) !important;
+  /* Document mode's own 20px indent, neutralized — see the
+     body.documentstyle rule near the top of this file. */
+  margin-left: 0 !important;
+}
+
+.mes_text p {
+  text-indent: var(--tt-indent) !important;
+  margin-top: 0 !important;
+  margin-bottom: 22px !important;
+  text-align: left !important;
+  overflow-wrap: break-word !important;
+}
+
+.mes_text p:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* keep indent from leaking into nested contexts */
+.mes_text blockquote p,
+.mes_text li p,
+.mes_text td p,
+.mes_text th p {
+  text-indent: 0 !important;
+}
+
+/* 7. markdown -------------------------------------------------------------*/
+.mes_text em, .mes_text i {
+  color: var(--tt-text-muted) !important;
+  font-style: italic !important;
+}
+
+.mes_text strong, .mes_text b {
+  color: var(--tt-text-strong) !important;
+  font-weight: 600 !important;
+}
+
+.mes_text u {
+  color: var(--tt-accent) !important;
+  text-decoration-color: var(--tt-accent) !important;
+}
+
+.mes_text q {
+  font-weight: 500 !important;
+  color: var(--tt-text) !important;
+}
+
+.mes_text a {
+  color: var(--tt-accent) !important;
+  text-decoration: underline !important;
+}
+
+.mes_text blockquote {
+  border-left: 3px solid var(--tt-accent) !important;
+  background: transparent !important;
+  padding: 4px 0 4px 18px !important;
+  margin: 0 0 22px 0 !important;
+  color: var(--tt-text-muted) !important;
+}
+
+.mes_text hr {
+  border: none !important;
+  border-top: 1px solid var(--tt-line) !important;
+  width: 30% !important;
+  margin: 30px auto !important;
+}
+
+.mes_text h1, .mes_text h2, .mes_text h3,
+.mes_text h4, .mes_text h5, .mes_text h6 {
+  color: var(--tt-text-strong) !important;
+  text-align: center !important;
+  border-bottom: none !important;
+  font-weight: 600 !important;
+}
+
+.mes_text ul, .mes_text ol {
+  color: var(--tt-text) !important;
+  padding-left: 2em !important;
+}
+
+.mes_text table {
+  border: 1px solid var(--tt-line) !important;
+  margin-bottom: 22px !important;
+}
+
+.mes_text td, .mes_text th {
+  border: 1px solid var(--tt-line) !important;
+  color: var(--tt-text) !important;
+}
+
+.mes_text pre {
+  background: var(--tt-card-alt) !important;
+  border: 1px solid var(--tt-line) !important;
+  border-radius: 6px !important;
+}
+
+.mes_text pre code, .mes_text code {
+  /* Fixed monospace stack — NOT var(--tt-prose-font). Code blocks stay
+     legible regardless of which display font the reader picked. */
+  font-family: 'Noto Sans Mono', 'Courier New', monospace !important;
+  /* .mes_text's own font-size is user-tunable via --tt-prose-size;
+     monospace code doesn't need to track that 1:1 (it usually reads
+     oversized if it does), so size it relative to the prose instead. */
+  font-size: 0.75em !important;
+  line-height: 1.5 !important;
+}
+
+.mes_text code:not(pre code) {
+  background: var(--tt-card-alt) !important;
+  color: var(--tt-accent) !important;
+  border-radius: 3px !important;
+  padding: 1px 5px !important;
+}
+
+/* 8. meta row: timer / mesID / token count ---------------------------------
+   Sits inside .mesAvatarWrapper's grid row 2, directly under the avatar
+   (which is row 1) — reads like a small "chapter stats" caption under a
+   book cover:
+       [avatar]
+     1.2s · #3 · 245t
+
+   mesIDDisplay always has content ("#N"); mes_timer and tokenCounterDisplay
+   are frequently empty (no timer on user messages, no token count until
+   the API responds). .mesAvatarWrapper's avatar spans all 3 grid columns
+   (grid-column: 1/-1) and centers itself across them — when a flanking
+   column is empty the grid still gives it some width to satisfy that
+   span, which throws off the *visual* centering of row 2 unless the one
+   field that's ALWAYS present (mesIDDisplay) sits in the middle column.
+   Flanking columns being asymmetric (one has content, one doesn't) then
+   only nudges the middle by a few px instead of ~15px. Verified against
+   actual rendered layouts: mesIDDisplay-only lands dead-center under the
+   avatar; mesIDDisplay+mes_timer lands within 3px of center.
+
+   Whether these three fields render at all is controlled by the engine
+   toggling power_user.timer_enabled / .mesIDDisplay_enabled /
+   .message_token_count_enabled (Stage 5), not by CSS. */
+.mesIDDisplay, .mes_timer, .tokenCounterDisplay {
+  display: inline-flex !important;
+  align-items: center !important;
+  grid-row: 2 !important;
+  color: var(--tt-text-muted) !important;
+  opacity: 0.7 !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  font-family: 'Sarabun', 'Noto Sans', sans-serif !important;
+  cursor: default !important;
+}
+
+.mes_timer { grid-column: 1 !important; }
+.mesIDDisplay { grid-column: 2 !important; }
+.tokenCounterDisplay { grid-column: 3 !important; }
+
+.mes_timer:empty, .tokenCounterDisplay:empty {
+  display: none !important;
+}
+
+/* Separators sit between mesIDDisplay and whichever neighbor is present,
+   not tied to DOM order, since mes_timer now sits visually to ID's left. */
+.mes_timer:not(:empty)::after {
+  content: "·" !important;
+  margin-left: 6px !important;
+  opacity: 0.6 !important;
+}
+
+.tokenCounterDisplay:not(:empty)::before {
+  content: "·" !important;
+  margin-right: 6px !important;
+  opacity: 0.6 !important;
+}
+
+/* 9. swipe — prev/next chapter tabs ---------------------------------------*/
+.swipe_left, .swipe_right {
+  color: var(--tt-text-muted) !important;
+  opacity: 0.4 !important;
+}
+.swipe_left:hover, .swipe_right:hover {
+  color: var(--tt-accent) !important;
+  opacity: 1 !important;
+}
+.swipes-counter {
+  color: var(--tt-text-muted) !important;
+}
+
+/* 10. reasoning — "บันทึกผู้เขียน" (author's note) box --------------------*/
+.mes_reasoning_details {
+  background: var(--tt-card-alt) !important;
+  border: none !important;
+  border-left: 3px solid var(--tt-accent) !important;
+  border-radius: 4px !important;
+  margin-bottom: 18px !important;
+  width: 100% !important;
+  max-width: var(--tt-column-width) !important;
+}
+
+.mes_reasoning_header, .mes_reasoning_header_title {
+  color: var(--tt-accent) !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.mes_reasoning {
+  color: var(--tt-text-muted) !important;
+}
+
+/* 11. top bar / drawer icons ----------------------------------------------*/
+#top-bar {
+  background: var(--tt-card) !important;
+  border-bottom: 1px solid var(--tt-line) !important;
+  box-shadow: none !important;
+}
+
+#top-settings-holder {
+  background: var(--tt-card) !important;
+}
+
+/* Use the main text color, not the muted one, as the icon base — style.css
+   dims every *closed* icon to 0.3 opacity on top of whatever color we set
+   here, and --tt-text-muted was already dim enough that the combination
+   (muted color × 0.3 opacity) rendered as essentially invisible, worst on
+   Dark/Night's near-black card. Raising just the opacity floor wasn't
+   enough on its own; starting from the brighter --tt-text plus a higher
+   opacity floor keeps closed icons clearly visible in every mode. */
+.drawer-icon {
+  color: var(--tt-text) !important;
+}
+
+.drawer-icon.openIcon {
+  color: var(--tt-accent) !important;
+}
+
+.drawer-icon.closedIcon {
+  opacity: 0.7 !important;
+}
+
+.drawer-icon.closedIcon:hover {
+  opacity: 1 !important;
+}
+
+/* 12. #form_sheld / #send_form — the comment box --------------------------*/
+#form_sheld {
+  background: var(--tt-page) !important;
+  border-top: 1px solid var(--tt-line) !important;
+}
+
+#send_form {
+  background: var(--tt-card) !important;
+  border: 1px solid var(--tt-line) !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+}
+
+#send_form:focus-within {
+  border: 1px solid var(--tt-accent) !important;
+}
+
+#send_textarea {
+  background: transparent !important;
+  color: var(--tt-text) !important;
+}
+
+#send_but, .fa-paper-plane {
+  color: var(--tt-accent) !important;
+}
+
+#options_button {
+  color: var(--tt-text-muted) !important;
+}
+
+/* Do not touch `display` on these — SillyTavern toggles it via inline style */
+#rightSendForm [style*="display: none"],
+#rightSendForm [style*="display:none"] {
+  display: none !important;
+}
+
+/* 13. drawers / floating panels --------------------------------------------*/
+.drawer-content,
+#floatingPrompt, #cfgConfig, #WorldInfo,
+#character_popup, .popup, .list-group-item {
+  background-color: var(--tt-card) !important;
+  color: var(--tt-text) !important;
+  border: 1px solid var(--tt-line) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.inline-drawer-content {
+  background-color: var(--tt-card-alt) !important;
+  color: var(--tt-text) !important;
+  border: 1px solid var(--tt-line) !important;
+  border-top: none !important;
+  border-radius: 0 0 8px 8px !important;
+}
+
+.inline-drawer-toggle.inline-drawer-header {
+  background-color: var(--tt-card) !important;
+  color: var(--tt-text-strong) !important;
+  border: 1px solid var(--tt-line) !important;
+  border-radius: 8px !important;
+}
+
+.inline-drawer-toggle.inline-drawer-header.open {
+  border-radius: 8px 8px 0 0 !important;
+  border-bottom-color: transparent !important;
+}
+
+#extensions_settings .inline-drawer-toggle.inline-drawer-header,
+#extensions_settings2 .inline-drawer-toggle.inline-drawer-header,
+#user-settings-block h4,
+.standoutHeader {
+  background: var(--tt-accent) !important;
+  color: #FFFFFF !important;
+}
+
+/* 13b. Prompt Manager (AI Response Configuration → prompt list) -----------
+   ST hardcodes several text colors here as semi-transparent WHITE
+   (--white30a / --white50a, i.e. rgba(255,255,255,.3/.5)) rather than
+   theme-aware variables — built assuming a dark background. On our light
+   card these render as near-invisible pale-on-pale text: disabled prompt
+   names, the category header labels ("Main Prompt" etc.), and disabled
+   dropdown options all disappear. None of the source rules use
+   !important, so a plain override here is enough to win. */
+#completion_prompt_manager #completion_prompt_manager_list .completion_prompt_manager_prompt_disabled .completion_prompt_manager_prompt_name,
+#completion_prompt_manager #completion_prompt_manager_list .completion_prompt_manager_prompt_disabled .completion_prompt_manager_prompt_name .prompt-manager-inspect-action {
+  color: var(--tt-text-muted) !important;
+}
+
+#completion_prompt_manager .completion_prompt_manager_header {
+  color: var(--tt-text-muted) !important;
+}
+
+#completion_prompt_manager #completion_prompt_manager_list .completion_prompt_manager_prompt.completion_prompt_manager_prompt_disabled {
+  border: 1px solid var(--tt-line) !important;
+}
+
+select option[disabled]:not(:checked) {
+  color: var(--tt-text-muted) !important;
+}
+
+/* 14. form controls ---------------------------------------------------------*/
+input[type="text"], input[type="search"], input[type="number"],
+input[type="password"], textarea, .text_pole, .form-control {
+  background-color: var(--tt-card-alt) !important;
+  color: var(--tt-text) !important;
+  border: 1px solid var(--tt-line) !important;
+}
+
+input[type="text"]:focus, textarea:focus, .text_pole:focus {
+  border-color: var(--tt-accent) !important;
+  box-shadow: 0 0 0 2px rgba(var(--tt-accent-rgb), 0.15) !important;
+}
+
+.select2-container .select2-selection,
+.select2-dropdown,
+select {
+  background-color: var(--tt-card-alt) !important;
+  color: var(--tt-text) !important;
+  border: 1px solid var(--tt-line) !important;
+}
+
+.select2-container .select2-selection__rendered,
+.select2-results__option {
+  color: var(--tt-text) !important;
+}
+
+.select2-results__option--highlighted {
+  background-color: var(--tt-accent) !important;
+  color: #FFFFFF !important;
+}
+
+/* Disabled World Info / Lorebook entries: ST dims them to 0.4 opacity
+   (world-info.css) on top of already-light text over an already-light
+   card background — the combination reads as blank in Normal/Sepia.
+   Raise the floor so "disabled" still means dimmer, not invisible. */
+.disabledWIEntry {
+  opacity: 0.6 !important;
+}
+.disabledWIEntry:not(input):hover {
+  opacity: 1 !important;
+}
+
+input[type="checkbox"] {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  width: 16px !important;
+  height: 16px !important;
+  border-radius: 3px !important;
+  background-color: var(--tt-card-alt) !important;
+  border: 1px solid var(--tt-line) !important;
+  position: relative !important;
+}
+
+input[type="checkbox"]:checked {
+  background-color: var(--tt-accent) !important;
+  border-color: var(--tt-accent) !important;
+}
+
+input[type="checkbox"]:checked::after {
+  content: "" !important;
+  position: absolute !important;
+  left: 4px !important;
+  top: 1px !important;
+  width: 4px !important;
+  height: 8px !important;
+  border: solid #FFFFFF !important;
+  border-width: 0 2px 2px 0 !important;
+  transform: rotate(45deg) !important;
+}
+
+.menu_button {
+  background-color: var(--tt-card) !important;
+  color: var(--tt-text) !important;
+  border: 1px solid var(--tt-line) !important;
+  border-radius: 4px !important;
+  text-shadow: none !important;
+}
+
+.menu_button:not(.disabled):not([disabled]):hover {
+  background-color: var(--tt-accent) !important;
+  color: #FFFFFF !important;
+  border-color: var(--tt-accent) !important;
+}
+
+.tag {
+  background-color: transparent !important;
+  color: var(--tt-text-muted) !important;
+  border: 1px solid var(--tt-line) !important;
+}
+
+.tag .tag_name {
+  background: transparent !important;
+}
+
+/* 15. character list — like a bookshelf of covers ----------------------------*/
+#rm_print_characters_block,
+#right-nav-panel {
+  background-color: var(--tt-page) !important;
+}
+
+.character_select {
+  background-color: var(--tt-card) !important;
+  border-bottom: 1px solid var(--tt-line) !important;
+  color: var(--tt-text) !important;
+}
+
+.character_select:hover {
+  background-color: var(--tt-card-alt) !important;
+}
+
+.character_select .avatar,
+.character_select .avatar img {
+  border-radius: 6px !important;
+}
+
+.character_select .ch_name {
+  color: var(--tt-text-strong) !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  text-align: left !important;
+  align-items: flex-start !important;
+}
+
+/* 16. welcome panel -----------------------------------------------------------*/
+.welcomePanel {
+  background: var(--tt-card) !important;
+  border: 1px solid var(--tt-line) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06) !important;
+  color: var(--tt-text) !important;
+  backdrop-filter: none !important;
+}
+
+/* 17. mobile ---------------------------------------------------------------*/
+@media (max-width: 768px) {
+  .mes {
+    padding: 24px 16px !important;
+  }
+  .mes_text p {
+    /* preserves the same ~0.6x ratio to the desktop indent that this
+       theme originally shipped with (10% → 6%), now relative to
+       whatever the reader has --tt-indent set to. */
+    text-indent: calc(var(--tt-indent) * 0.6) !important;
+  }
+  .mesAvatarWrapper .avatar,
+  .mesAvatarWrapper .avatar img {
+    width: 36px !important;
+    height: 36px !important;
+  }
+}

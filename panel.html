@@ -1,0 +1,61 @@
+<div class="tinytheme-panel">
+    <div class="tinytheme-row" data-control="mode">
+        <label class="tinytheme-label">โหมดสี</label>
+        <select class="tinytheme-mode-select text_pole"></select>
+    </div>
+
+    <div class="tinytheme-row" data-control="accent">
+        <label class="tinytheme-label">สี accent เอง</label>
+        <div class="tinytheme-accent-row">
+            <input class="tinytheme-accent-input" type="color" />
+            <a class="tinytheme-accent-reset menu_button" title="กลับไปใช้สีของโหมด">
+                <i class="fa-solid fa-rotate-left"></i>
+            </a>
+        </div>
+    </div>
+
+    <div class="tinytheme-row" data-control="proseFont">
+        <label class="tinytheme-label">ฟอนต์เนื้อเรื่อง</label>
+        <select class="tinytheme-font-select text_pole"></select>
+    </div>
+
+    <div class="tinytheme-row" data-control="proseSize">
+        <label class="tinytheme-label">ขนาดตัวอักษร <span class="tinytheme-prose-size-value"></span></label>
+        <input class="tinytheme-prose-size-slider" type="range" min="14" max="28" step="1" />
+    </div>
+
+    <div class="tinytheme-row" data-control="lineHeight">
+        <label class="tinytheme-label">ระยะบรรทัด <span class="tinytheme-line-height-value"></span></label>
+        <input class="tinytheme-line-height-slider" type="range" min="1.4" max="2.2" step="0.1" />
+    </div>
+
+    <div class="tinytheme-row" data-control="columnWidth">
+        <label class="tinytheme-label">ความกว้างคอลัมน์ <span class="tinytheme-column-width-value"></span></label>
+        <input class="tinytheme-column-width-slider" type="range" min="480" max="900" step="10" />
+    </div>
+
+    <div class="tinytheme-row" data-control="indent">
+        <label class="tinytheme-label">ย่อหน้าเยื้อง <span class="tinytheme-indent-value"></span></label>
+        <input class="tinytheme-indent-slider" type="range" min="0" max="15" step="1" />
+    </div>
+
+    <div class="tinytheme-row" data-control="stats">
+        <label class="tinytheme-label">แสดงสถิติใต้ avatar</label>
+        <label class="checkbox_label">
+            <input class="tinytheme-stat-toggle" type="checkbox" data-stat="mesIDDisplay_enabled" />
+            <span>เลขข้อความ</span>
+        </label>
+        <label class="checkbox_label">
+            <input class="tinytheme-stat-toggle" type="checkbox" data-stat="timer_enabled" />
+            <span>เวลาที่ AI ตอบ</span>
+        </label>
+        <label class="checkbox_label">
+            <input class="tinytheme-stat-toggle" type="checkbox" data-stat="message_token_count_enabled" />
+            <span>จำนวนโทเคน</span>
+        </label>
+    </div>
+
+    <div class="tinytheme-row tinytheme-actions">
+        <a class="tinytheme-reset-all menu_button">รีเซ็ตเป็นค่าเริ่มต้นของธีม</a>
+    </div>
+</div>

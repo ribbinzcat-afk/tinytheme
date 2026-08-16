@@ -1,0 +1,148 @@
+{
+    "id": "thai-novel-reader",
+    "name": "Thai Novel Reader",
+    "description": "หน้าอ่านนิยายไทยสไตล์ readawrite.com",
+    "author": "Apricity & Claude",
+    "version": "2.0.0",
+
+    "fonts": [
+        {
+            "family": "Jindara",
+            "src": [
+                { "url": "https://ik.imagekit.io/apricity/Font%20For%20Theme/Jindara/JS-Jindara-Normal.ttf", "weight": 400, "style": "normal" },
+                { "url": "https://ik.imagekit.io/apricity/Font%20For%20Theme/Jindara/JS-Jindara-Italic.ttf", "weight": 400, "style": "italic" },
+                { "url": "https://ik.imagekit.io/apricity/Font%20For%20Theme/Jindara/JS-Jindara-Bold.ttf", "weight": 700, "style": "normal" },
+                { "url": "https://ik.imagekit.io/apricity/Font%20For%20Theme/Jindara/JS-Jindara-Bold-Italic.ttf", "weight": 700, "style": "italic" }
+            ]
+        }
+    ],
+
+    "fontChoices": [
+        { "label": "Jindara (ค่าเริ่มต้น)", "value": "'Jindara', 'Sarabun', 'Noto Sans', sans-serif" },
+        { "label": "Sarabun", "value": "'Sarabun', 'Noto Sans', sans-serif" },
+        { "label": "Noto Sans Thai", "value": "'Noto Sans Thai', 'Noto Sans', sans-serif" },
+        { "label": "Kanit", "value": "'Kanit', 'Noto Sans', sans-serif" },
+        { "label": "IBM Plex Sans Thai", "value": "'IBM Plex Sans Thai', 'Noto Sans', sans-serif" }
+    ],
+
+    "modes": {
+        "normal": {
+            "label": "ปกติ (ขาว)",
+            "vars": {
+                "page": "#FFFFFF",
+                "card": "#FFFFFF",
+                "card-alt": "#F4F4F4",
+                "text": "#303030",
+                "text-strong": "#303030",
+                "text-muted": "#909090",
+                "line": "#E6E6E6",
+                "accent": "#00CBC3",
+                "accent-rgb": "0, 203, 195",
+                "accent-soft": "#95DBD5",
+                "grayscale": "0%",
+                "contrast": "100%"
+            },
+            "themeColors": {
+                "main_text_color": "rgba(48, 48, 48, 1)",
+                "italics_text_color": "rgba(141, 141, 146, 1)",
+                "underline_text_color": "rgba(0, 203, 195, 1)",
+                "quote_text_color": "rgba(48, 48, 48, 1)",
+                "blur_tint_color": "rgba(255, 255, 255, 1)",
+                "chat_tint_color": "rgba(255, 255, 255, 1)",
+                "border_color": "rgba(230, 230, 230, 1)"
+            }
+        },
+        "sepia": {
+            "label": "ครีม",
+            "vars": {
+                "page": "#F4EDDF",
+                "card": "#FFFBF4",
+                "card-alt": "#F3EFE8",
+                "text": "#303030",
+                "text-strong": "#303030",
+                "text-muted": "#909090",
+                "line": "#E2D8CC",
+                "accent": "#00CBC3",
+                "accent-rgb": "0, 203, 195",
+                "accent-soft": "#95DBD5",
+                "grayscale": "0%",
+                "contrast": "100%"
+            },
+            "themeColors": {
+                "main_text_color": "rgba(48, 48, 48, 1)",
+                "italics_text_color": "rgba(141, 141, 146, 1)",
+                "underline_text_color": "rgba(0, 203, 195, 1)",
+                "quote_text_color": "rgba(48, 48, 48, 1)",
+                "blur_tint_color": "rgba(244, 237, 223, 1)",
+                "chat_tint_color": "rgba(240, 231, 213, 1)",
+                "border_color": "rgba(226, 216, 204, 1)"
+            }
+        },
+        "night": {
+            "label": "กลางคืน (เทาเข้ม)",
+            "vars": {
+                "page": "#303030",
+                "card": "#000000",
+                "card-alt": "#1A1A1A",
+                "text": "#C0C0C0",
+                "text-strong": "#FFFFFF",
+                "text-muted": "#8D8D92",
+                "line": "#404040",
+                "accent": "#00CBC3",
+                "accent-rgb": "0, 203, 195",
+                "accent-soft": "#0DAAA4",
+                "grayscale": "0%",
+                "contrast": "100%"
+            },
+            "themeColors": {
+                "main_text_color": "rgba(192, 192, 192, 1)",
+                "italics_text_color": "rgba(141, 141, 146, 1)",
+                "underline_text_color": "rgba(0, 203, 195, 1)",
+                "quote_text_color": "rgba(192, 192, 192, 1)",
+                "blur_tint_color": "rgba(0, 0, 0, 1)",
+                "chat_tint_color": "rgba(48, 48, 48, 1)",
+                "border_color": "rgba(64, 64, 64, 1)"
+            }
+        },
+        "dark": {
+            "label": "ดำ (เกรย์สเกล)",
+            "vars": {
+                "page": "#202020",
+                "card": "#000000",
+                "card-alt": "#151515",
+                "text": "#808080",
+                "text-strong": "#C1C1C1",
+                "text-muted": "#5A5A5A",
+                "line": "#2C2C2C",
+                "accent": "#AAAAAA",
+                "accent-rgb": "170, 170, 170",
+                "accent-soft": "#707070",
+                "grayscale": "100%",
+                "contrast": "50%"
+            },
+            "themeColors": {
+                "main_text_color": "rgba(128, 128, 128, 1)",
+                "italics_text_color": "rgba(96, 96, 96, 1)",
+                "underline_text_color": "rgba(170, 170, 170, 1)",
+                "quote_text_color": "rgba(160, 160, 160, 1)",
+                "blur_tint_color": "rgba(32, 32, 32, 1)",
+                "chat_tint_color": "rgba(0, 0, 0, 1)",
+                "border_color": "rgba(44, 44, 44, 1)"
+            }
+        }
+    },
+
+    "defaults": {
+        "mode": "normal",
+        "proseSize": 20,
+        "proseFont": "'Jindara', 'Sarabun', 'Noto Sans', sans-serif",
+        "lineHeight": 1.7,
+        "columnWidth": 640,
+        "indent": 10,
+        "mesIDDisplay_enabled": true,
+        "timer_enabled": true,
+        "message_token_count_enabled": true
+    },
+
+    "controls": ["mode", "proseSize", "proseFont", "lineHeight", "columnWidth", "indent", "accent", "stats"]
+}

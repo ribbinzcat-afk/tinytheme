@@ -1,0 +1,58 @@
+/* TinyTheme — สไตล์ของ "หน้าตั้งค่า/panel" เท่านั้น
+   ธีมของแชทเองอยู่ใน themes/<id>/theme.css และถูกฉีดแยกโดย index.js
+   (ดู THEME-AUTHORING.md) — ห้ามใส่สไตล์ของหน้าแชทที่นี่ */
+
+.tinytheme-hint {
+    opacity: 0.7;
+    font-size: 0.9em;
+}
+
+.tinytheme-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    max-width: 320px;
+}
+
+.tinytheme-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.tinytheme-label {
+    font-size: 0.85em;
+    opacity: 0.85;
+}
+
+.tinytheme-accent-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.tinytheme-accent-input {
+    width: 44px;
+    height: 26px;
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+/* ST's .menu_button ตั้ง width: min-content ไว้ — พอเจอข้อความไทยยาวๆ
+   ที่ไม่มีช่องว่างให้ตัดคำ เบราว์เซอร์จะพยายามบีบให้แคบสุดโดยตัดทุก
+   ตัวอักษร กลายเป็นตัวอักษรเดียวต่อบรรทัดในแนวตั้ง — บังคับ width: auto
+   แล้วให้ text กว้างเต็มปุ่มแทน */
+.tinytheme-actions {
+    margin-top: 4px;
+}
+
+.tinytheme-reset-all,
+.tinytheme-accent-reset {
+    width: auto !important;
+    white-space: normal;
+    text-align: center;
+    justify-content: center;
+}
