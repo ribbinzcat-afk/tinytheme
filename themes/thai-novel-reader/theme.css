@@ -644,32 +644,27 @@ select {
   opacity: 1 !important;
 }
 
+/* Checkboxes: NOT reskinned. SillyTavern already draws its own tick via
+   an ::before clip-path shape (style.css:4067-4081), whose color is
+   auto-computed for contrast against the checkbox's own background
+   (which core sets to --SmartThemeBodyColor — see applyThemeColor('main')
+   in power-user.js, which also derives --SmartThemeCheckboxBgColorR/G/B
+   from that same color for the contrast calc in style.css:83-89).
+   Earlier drafts of this theme added a *second* checkmark here via
+   :checked::after — since core's already renders its own via ::before,
+   both painted at once, reading as a doubled/overlapping tick. Redrawing
+   the checkbox from scratch isn't necessary: we already map
+   --SmartThemeBodyColor to --tt-text above, so the checkbox naturally
+   picks up the theme's text color. The only gap is that core only
+   recomputes --SmartThemeCheckboxBgColorR/G/B when a color picker fires
+   (applyThemeColor('main')) — this theme never calls that, so we set the
+   three channels directly from --tt-text-rgb so the native tick's
+   contrast is computed against the *actual* rendered background, not
+   whatever an earlier theme/session left behind. */
 input[type="checkbox"] {
-  -webkit-appearance: none !important;
-  appearance: none !important;
-  width: 16px !important;
-  height: 16px !important;
-  border-radius: 3px !important;
-  background-color: var(--tt-card-alt) !important;
-  border: 1px solid var(--tt-line) !important;
-  position: relative !important;
-}
-
-input[type="checkbox"]:checked {
-  background-color: var(--tt-accent) !important;
-  border-color: var(--tt-accent) !important;
-}
-
-input[type="checkbox"]:checked::after {
-  content: "" !important;
-  position: absolute !important;
-  left: 4px !important;
-  top: 1px !important;
-  width: 4px !important;
-  height: 8px !important;
-  border: solid #FFFFFF !important;
-  border-width: 0 2px 2px 0 !important;
-  transform: rotate(45deg) !important;
+  --SmartThemeCheckboxBgColorR: var(--tt-text-r) !important;
+  --SmartThemeCheckboxBgColorG: var(--tt-text-g) !important;
+  --SmartThemeCheckboxBgColorB: var(--tt-text-b) !important;
 }
 
 .menu_button {

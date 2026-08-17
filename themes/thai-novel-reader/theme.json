@@ -14,11 +14,21 @@
                 { "url": "https://ik.imagekit.io/apricity/Font%20For%20Theme/Jindara/JS-Jindara-Bold.ttf", "weight": 700, "style": "normal" },
                 { "url": "https://ik.imagekit.io/apricity/Font%20For%20Theme/Jindara/JS-Jindara-Bold-Italic.ttf", "weight": 700, "style": "italic" }
             ]
+        },
+        {
+            "family": "Garuda",
+            "src": [
+                { "url": "https://ik.imagekit.io/apricity/Font%20For%20Theme/Garuda/Garuda.ttf?updatedAt=1786902517645", "weight": 400, "style": "normal" },
+                { "url": "https://ik.imagekit.io/apricity/Font%20For%20Theme/Garuda/Garuda-Oblique.ttf?updatedAt=1786902517755", "weight": 400, "style": "italic" },
+                { "url": "https://ik.imagekit.io/apricity/Font%20For%20Theme/Garuda/Garuda-Bold.ttf?updatedAt=1786902517600", "weight": 700, "style": "normal" },
+                { "url": "https://ik.imagekit.io/apricity/Font%20For%20Theme/Garuda/Garuda-BoldOblique.ttf?updatedAt=1786902517675", "weight": 700, "style": "italic" }
+            ]
         }
     ],
 
     "fontChoices": [
         { "label": "Jindara (ค่าเริ่มต้น)", "value": "'Jindara', 'Sarabun', 'Noto Sans', sans-serif" },
+        { "label": "Garuda", "value": "'Garuda', 'Sarabun', 'Noto Sans', sans-serif" },
         { "label": "Sarabun", "value": "'Sarabun', 'Noto Sans', sans-serif" },
         { "label": "Noto Sans Thai", "value": "'Noto Sans Thai', 'Noto Sans', sans-serif" },
         { "label": "Kanit", "value": "'Kanit', 'Noto Sans', sans-serif" },

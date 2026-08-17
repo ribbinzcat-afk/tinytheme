@@ -120,6 +120,13 @@ function hexToRgbTriplet(hex) {
     return `${parseInt(m[1], 16)}, ${parseInt(m[2], 16)}, ${parseInt(m[3], 16)}`;
 }
 
+/** hex "#00CBC3" -> {r:0, g:203, b:195} (สำหรับ --SmartThemeCheckboxBgColorR/G/B) */
+function hexToRgbChannels(hex) {
+    const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    if (!m) return null;
+    return { r: parseInt(m[1], 16), g: parseInt(m[2], 16), b: parseInt(m[3], 16) };
+}
+
 /** สร้าง :root { --tt-*: ... } จาก mode ที่เลือก + ค่าที่ผู้ใช้ปรับ */
 function buildVarsCss(themeId, meta) {
     const modeId = getThemeSetting(themeId, "mode") || meta.defaults?.mode || Object.keys(meta.modes)[0];
@@ -128,6 +135,15 @@ function buildVarsCss(themeId, meta) {
     const lines = [];
     for (const [key, value] of Object.entries(mode.vars || {})) {
         lines.push(`  --tt-${key}: ${value};`);
+    }
+
+    // แยก R/G/B ของสีข้อความหลักไว้ให้ checkbox ของ SillyTavern เอง
+    // คำนวณสี tick ให้ contrast ถูกต้อง (ดูคอมเมนต์ยาวใน theme.css)
+    const textChannels = hexToRgbChannels(mode.vars?.text);
+    if (textChannels) {
+        lines.push(`  --tt-text-r: ${textChannels.r};`);
+        lines.push(`  --tt-text-g: ${textChannels.g};`);
+        lines.push(`  --tt-text-b: ${textChannels.b};`);
     }
 
     // สี accent ที่ผู้ใช้เลือกเอง (ถ้ามี) แทนที่ของโหมด
@@ -282,6 +298,28 @@ function reorderStylesToEnd() {
     }
 }
 
+/** เปิดใช้งาน: ฉีดธีม + เติม panel ใน drawer + โชว์ปุ่มไม้กายสิทธิ์ */
+async function enableExtension() {
+    const settings = ensureSettings();
+    const meta = await applyTheme(settings.activeTheme);
+    console.log(`[${extensionName}] Applied theme: ${settings.activeTheme} (${meta.name} v${meta.version})`);
+    $(".tinytheme-hint").text(`ธีมที่ใช้อยู่: ${meta.name}`);
+    $(".tinytheme-panel-mount").show();
+    await mountPanel($(".tinytheme-panel-mount"));
+    syncStatsToPowerUser();
+    $("#tinytheme-menu-button").show();
+}
+
+/** ปิดใช้งาน: ถอน CSS ธีมทั้งหมด กลับไปหน้าตาปกติของ SillyTavern
+ *  (ไม่แตะ power_user.timer_enabled ฯลฯ — ค่าพวกนั้นเป็นความชอบเรื่อง
+ *  การแสดงผลข้อความทั่วไป ไม่ใช่ส่วนของธีม เก็บไว้ตามที่ผู้ใช้ตั้งล่าสุด) */
+function disableExtension() {
+    removeTheme();
+    $(".tinytheme-hint").text("TinyTheme ปิดอยู่");
+    $(".tinytheme-panel-mount").hide().empty();
+    $("#tinytheme-menu-button").hide();
+}
+
 jQuery(async () => {
     console.log(`[${extensionName}] Loading...`);
     try {
@@ -290,13 +328,7 @@ jQuery(async () => {
         console.log(`[${extensionName}] Settings drawer injected successfully.`);
 
         const settings = ensureSettings();
-        if (settings.enabled) {
-            const meta = await applyTheme(settings.activeTheme);
-            console.log(`[${extensionName}] Applied theme: ${settings.activeTheme} (${meta.name} v${meta.version})`);
-            $(".tinytheme-hint").text(`ธีมที่ใช้อยู่: ${meta.name}`);
-            await mountPanel($(".tinytheme-panel-mount"));
-            syncStatsToPowerUser();
-        }
+        $("#tinytheme-enabled").prop("checked", settings.enabled);
 
         // ปุ่มในเมนูไม้กายสิทธิ์ — ทางลัดเปิด panel แบบ popup โดยไม่ต้องไปหน้า Extensions
         const menuButton = $(`
@@ -309,6 +341,25 @@ jQuery(async () => {
             const $popupContent = $('<div class="tinytheme-popup-mount"></div>');
             await mountPanel($popupContent);
             callGenericPopup($popupContent, POPUP_TYPE.TEXT, "", { okButton: "ปิด", wide: false });
+        });
+
+        if (settings.enabled) {
+            await enableExtension();
+        } else {
+            $("#tinytheme-menu-button").hide();
+            $(".tinytheme-hint").text("TinyTheme ปิดอยู่");
+        }
+
+        $(document).on("change", "#tinytheme-enabled", async function () {
+            const isEnabled = $(this).prop("checked");
+            const s = ensureSettings();
+            s.enabled = isEnabled;
+            saveSettingsDebounced();
+            if (isEnabled) {
+                await enableExtension();
+            } else {
+                disableExtension();
+            }
         });
 
         eventSource.on(event_types.APP_READY, reorderStylesToEnd);
