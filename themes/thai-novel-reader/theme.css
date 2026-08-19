@@ -27,6 +27,22 @@
   --SmartThemeChatTintColor: var(--tt-page) !important;
   --mainFontFamily: 'Sarabun', 'Noto Sans', sans-serif !important;
   --monoFontFamily: 'Noto Sans Mono', 'Courier New', monospace !important;
+  /* Feeds style.css's checkbox-tick contrast formula (see the long
+     comment near `input[type="checkbox"]` below). That formula is a
+     calc() defined ON :root, reading these three custom properties AS
+     SEEN FROM :root's own scope — CSS custom properties don't flow
+     "upward" from a descendant selector, so declaring this on
+     `input[type="checkbox"]` (an earlier version of this rule did) has
+     ZERO effect on the :root-scoped calc(); it only *looked* like it
+     worked in testing because a native SillyTavern theme with a
+     matching main_text_color happened to be selected at the same time,
+     masking the bug. Must live on :root to actually override core's own
+     inline `document.documentElement.style.setProperty(...)` call from
+     applyThemeColor('main') — which runs on ANY native theme switch, not
+     just ours, and would otherwise leave stale values here. */
+  --SmartThemeCheckboxBgColorR: var(--tt-text-r) !important;
+  --SmartThemeCheckboxBgColorG: var(--tt-text-g) !important;
+  --SmartThemeCheckboxBgColorB: var(--tt-text-b) !important;
 }
 
 /* 2. Base ----------------------------------------------------------------*/
@@ -666,26 +682,20 @@ select {
 }
 
 /* Checkboxes: NOT reskinned. SillyTavern already draws its own tick via
-   an ::before clip-path shape (style.css:4067-4081), whose color is
-   auto-computed for contrast against the checkbox's own background
-   (which core sets to --SmartThemeBodyColor — see applyThemeColor('main')
-   in power-user.js, which also derives --SmartThemeCheckboxBgColorR/G/B
-   from that same color for the contrast calc in style.css:83-89).
-   Earlier drafts of this theme added a *second* checkmark here via
-   :checked::after — since core's already renders its own via ::before,
-   both painted at once, reading as a doubled/overlapping tick. Redrawing
-   the checkbox from scratch isn't necessary: we already map
-   --SmartThemeBodyColor to --tt-text above, so the checkbox naturally
-   picks up the theme's text color. The only gap is that core only
-   recomputes --SmartThemeCheckboxBgColorR/G/B when a color picker fires
-   (applyThemeColor('main')) — this theme never calls that, so we set the
-   three channels directly from --tt-text-rgb so the native tick's
-   contrast is computed against the *actual* rendered background, not
-   whatever an earlier theme/session left behind. */
-input[type="checkbox"] {
-  --SmartThemeCheckboxBgColorR: var(--tt-text-r) !important;
-  --SmartThemeCheckboxBgColorG: var(--tt-text-g) !important;
-  --SmartThemeCheckboxBgColorB: var(--tt-text-b) !important;
+   an ::before clip-path shape (style.css:4067-4081); its color-contrast
+   inputs are mapped on :root above (see the comment there for why it
+   MUST be :root and not this selector). The one thing still handled
+   here: defensively kill any ::after content on checkboxes. This isn't
+   needed against core (it only uses ::before) or against this theme's
+   own current CSS (no ::after here anymore — an earlier draft's
+   :checked::after duplicate tick is what caused the original
+   overlapping-checkmark report), but a *different* native SillyTavern
+   theme selected alongside this one could add its own ::after checkmark
+   the same way ours once did, and we can't audit every theme a user
+   might pair us with. This guarantees only core's ::before tick ever
+   renders, regardless of what else is loaded. */
+input[type="checkbox"]::after {
+  content: none !important;
 }
 
 .menu_button {
