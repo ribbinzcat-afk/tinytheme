@@ -404,6 +404,32 @@ body.documentstyle #chat .mes .mes_text {
      oversized if it does), so size it relative to the prose instead. */
   font-size: 0.75em !important;
   line-height: 1.5 !important;
+  /* Core runs every <pre><code> through highlight.js unconditionally
+     (script.js's addCopyToCodeBlocks → hljs.highlightElement, called on
+     every code block regardless of whether a language is recognized),
+     which adds class="hljs" carrying its own hardcoded background/color
+     from the bundled "Bright" theme (css/bright.min.css, index.html:28)
+     — designed for a black IDE, not a light reading page. .hljs is a
+     single-class rule with no !important; this selector is already more
+     specific, so declaring background/color here is enough to win —
+     the bug before was simply that this rule never declared them, so
+     .hljs's black-on-light-gray applied by default with nothing to
+     contest it. */
+  background: var(--tt-card-alt) !important;
+  color: var(--tt-text) !important;
+}
+
+/* Beyond the base .hljs background/color above, highlight.js also wraps
+   each recognized token (keywords, strings, comments, ...) in its own
+   <span class="hljs-xxx">, each carrying its OWN color from the same
+   dark-IDE "Bright" theme (.hljs-keyword, .hljs-string, .hljs-comment,
+   etc. — a few dozen classes). Retuning each one to work across all 4
+   very different palettes (light/sepia/dark-gray/grayscale) isn't worth
+   the upkeep for what's usually a short snippet, not a full program —
+   flatten every token to the code block's own text color instead, so
+   the block reads as one consistent color in every mode. */
+.mes_text pre code.hljs span {
+  color: inherit !important;
 }
 
 .mes_text code:not(pre code) {
