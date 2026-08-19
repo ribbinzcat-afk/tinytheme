@@ -712,6 +712,27 @@ input[type="checkbox"]::after {
   border-color: var(--tt-accent) !important;
 }
 
+/* Status-toggle buttons that happen to also be .menu_button — the
+   Favorite star (#favorite_button / #group_favorite_button) and the
+   Character Lore / World Info globe (#world_button, #set_character_world,
+   .chat_lorebook_button, #persona_lore_button) in the character edit
+   panel. Core colors their "on" state via .fav_on (gold) and .world_set
+   / .toggleEnabled (green) — both single-class selectors with the same
+   0-0-1-0 specificity as our bare .menu_button rule above. Since both
+   are !important, the tiebreaker is source order, and this stylesheet
+   loads after style.css, so our flat text color was silently winning and
+   these indicators never showed their color at all. Selectors combining
+   both classes outrank the single-class rules above regardless of load
+   order, restoring the intended color. */
+.menu_button.fav_on {
+  color: var(--golden) !important;
+}
+
+.menu_button.world_set,
+.menu_button.toggleEnabled {
+  color: var(--active) !important;
+}
+
 .tag {
   background-color: transparent !important;
   color: var(--tt-text-muted) !important;
