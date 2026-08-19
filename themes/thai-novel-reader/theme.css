@@ -242,6 +242,27 @@ body.documentstyle #chat .mes .mes_text {
   opacity: 1 !important;
 }
 
+/* .mes_buttons is position:absolute with no `left`/`width` (see above) —
+   its box is only as wide as its content demands. Core also ships
+   .mes_buttons and .extraMesButtons (the panel that opens from the "..."
+   hint, holding up to ~10 icons: translate, narrate, hide, embed,
+   checkpoint, branch, copy, ...) with `flex-wrap: nowrap` and
+   `overflow-x: hidden`. Nowrap on an unconstrained auto-width box does
+   nothing to contain it — the row just keeps growing left past the card,
+   past the page, off the visible viewport, while overflow-x:hidden only
+   clips content that doesn't fit *inside* a box with a real width, which
+   this box never had. Give both a real max-width and let them wrap. */
+.ch_name .mes_buttons,
+.ch_name .extraMesButtons {
+  flex-wrap: wrap !important;
+  justify-content: flex-end !important;
+  overflow: visible !important;
+}
+
+.ch_name .extraMesButtons {
+  max-width: min(220px, calc(100vw - 32px)) !important;
+}
+
 .mes_button, .mes_edit_buttons .menu_button {
   color: var(--tt-text-muted) !important;
 }
