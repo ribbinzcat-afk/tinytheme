@@ -263,11 +263,32 @@ textarea, .form-control {
   background: var(--tt-ui-bg-deep) !important;
 }
 
+/* core dims every *closed* top-bar icon to 0.3 opacity by default, with no
+   color of its own — on a dark palette the inherited color is often dim
+   enough already that 0.3 on top of it reads as invisible (same bug found
+   in thai-novel-reader; see THEME-AUTHORING.md §5). Start from the bright
+   --tt-ui-text and raise the opacity floor instead of the default 0.3. */
+.drawer-icon {
+  color: var(--tt-ui-text) !important;
+}
+.drawer-icon.openIcon {
+  color: var(--tt-accent) !important;
+}
+.drawer-icon.closedIcon {
+  opacity: 0.7 !important;
+}
+.drawer-icon.closedIcon:hover {
+  opacity: 1 !important;
+}
+
 /* ===== 18. Chat area ===== */
 #chat {
   padding-left: 1% !important;
   padding-right: 1% !important;
   border: none !important;
+  /* #chat's own vertical scrollbar eats width from the right edge only,
+     throwing off centered content by a few px (see THEME-AUTHORING.md §5) */
+  scrollbar-gutter: stable both-edges;
 }
 
 /* ===== 19. Welcome Panel ===== */
@@ -389,6 +410,17 @@ textarea, .form-control {
 .mes[is_user='true'] .mes_text pre code {
   background: var(--tt-bubble-user-deep) !important;
   color: var(--tt-bubble-user-text) !important;
+}
+/* Base background/color above already win over highlight.js's bundled
+   "Bright" dark-IDE theme (its .hljs rule is a single class, lower
+   specificity than the two rules above) — but each recognized token
+   (keyword/string/comment/...) is ALSO wrapped in its own colored
+   <span class="hljs-xxx">, independent of the base color. Left alone
+   those keep their neon dark-IDE colors regardless of bubble side. Flatten
+   every token back to inherit instead of retuning a few dozen token
+   classes across 7 very different palettes (see THEME-AUTHORING.md §5). */
+.mes_text pre code.hljs span {
+  color: inherit !important;
 }
 
 /* --- INLINE CODE (backtick เดี่ยว) --- */
@@ -814,4 +846,21 @@ select:focus,
 .mes_text blockquote p::before,
 .mes_text blockquote p::after {
   display: none !important;
+}
+
+/* ===== 22. Core bug workarounds (ไม่เกี่ยวกับพาเลตต์ของธีมนี้ — เจอ
+   ระหว่างทำ thai-novel-reader มาก่อน ดู THEME-AUTHORING.md §5) ===== */
+
+/* core hardcodes rgba(255,255,255,.3) for disabled World Info entries,
+   assuming a dark background always — on a light palette that's white
+   text on a near-white row, effectively invisible. */
+.disabledWIEntry {
+  opacity: 0.6 !important;
+}
+.disabledWIEntry:not(input):hover {
+  opacity: 1 !important;
+}
+
+select option[disabled]:not(:checked) {
+  color: var(--tt-muted) !important;
 }
