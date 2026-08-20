@@ -81,6 +81,17 @@ img, .avatar img {
   border: none !important;
   padding: 24px 0 !important;
   box-shadow: none !important;
+  /* #chat is the actual scrolling element (overflow-y auto/scroll), and
+     its vertical scrollbar only ever eats width from the RIGHT edge.
+     .mes below centers itself with margin:0 auto inside #chat's content
+     box — which is narrower than #chat's own box by exactly the
+     scrollbar's width, but only on one side — so "centered" ends up a
+     few px left of the page's true visual center. scrollbar-gutter
+     reserves a matching empty gutter on the left too, so both sides
+     shrink equally and margin:auto centers against a symmetric box
+     again. Unsupported browsers just keep today's (slightly off)
+     behavior — not a regression, this is additive. */
+  scrollbar-gutter: stable both-edges;
 }
 
 /* 4. .mes — one chapter block --------------------------------------------*/
