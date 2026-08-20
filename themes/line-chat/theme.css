@@ -1,0 +1,817 @@
+/* ===== LINE Style Theme — ต้นฉบับโดย April & Claude ===== */
+/* ดัดแปลงเพื่อใช้ส่วนตัวได้ นำไปเผยแพร่ต่อได้ รบกวนไม่ลบเครดิตใดๆ ออกจากโค้ดหรือไฟล์ต้นฉบับนะคะ */
+/* ขอบคุณ คุณ Chai/Ultraviolenc สำหรับ Prompt Universal SillyTavern Theme Creator ค่ะ */
+/* ขอบคุณ คุณ ตานามีปลาตายามีนา สำหรับกระทู้ How To แต่งธีมเบื้องต้น ค่ะ */
+/*
+   Feel free to modify for personal use and redistribute. Please do not
+   remove any credits from the code or original files.
+   Thanks to Chai/Ultraviolenc for the Universal SillyTavern Theme Creator Prompt.
+   Thanks to ตานามีปลาตายามีนา for the "How To แต่งธีมเบื้องต้น" thread.
+*/
+/* พอร์ตเข้าเครื่องยนต์ TinyTheme (var(--tt-*), ควบคุมได้จาก UI) โดย Apricity & Claude */
+
+/* ===== 1. ฟอนต์ ===== */
+body, .mes_text, .mes_text p {
+  font-family: var(--tt-prose-font);
+}
+
+/* ===== 2. ล้างพื้นหลังกล่องข้อความเดิม ===== */
+.mes {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 8px 12px !important;
+}
+
+/* ===== 3. โครงสร้างแถวข้อความ (avatar + block) ===== */
+.mes {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: flex-start !important;
+  gap: 8px !important;
+}
+/* AI ชิดซ้าย */
+.mes[is_user='false'] {
+  flex-direction: row !important;
+  justify-content: flex-start !important;
+}
+/* User ชิดขวา */
+.mes[is_user='true'] {
+  flex-direction: row-reverse !important;
+  justify-content: flex-start !important;
+}
+
+/* ===== 4. อวาตารกลมแบบ LINE ===== */
+.mesAvatarWrapper .avatar,
+.mesAvatarWrapper .avatar img {
+  width: 42px !important;
+  height: 42px !important;
+  border-radius: 50% !important;
+  object-fit: cover !important;
+  border: none !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15) !important;
+}
+.mesAvatarWrapper {
+  flex-shrink: 0 !important;
+  margin-top: 22px !important;
+}
+
+/* ===== 5. บล็อกข้อความ ===== */
+.mes_block {
+  display: flex !important;
+  flex-direction: column !important;
+  max-width: 72% !important;
+  margin: 0 !important;
+  flex: 0 1 auto !important;
+}
+.mes[is_user='true'] .mes_block {
+  align-items: flex-end !important;
+}
+.mes[is_user='false'] .mes_block {
+  align-items: flex-start !important;
+}
+
+/* ===== 6. ชื่อผู้พูด (เล็ก เนียน) ===== */
+.ch_name {
+  padding: 0 6px 2px !important;
+}
+.name_text {
+  font-size: 12px !important;
+  font-weight: 400 !important;
+  opacity: 0.7 !important;
+}
+.mes[is_user='true'] .ch_name {
+  flex-direction: row-reverse !important;
+}
+
+/* ===== 7. บับเบิ้ล: แต่ละ <p> = 1 ก้อน ===== */
+.mes_text {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 5px !important;
+  background: transparent !important;
+  padding: 0 !important;
+}
+.mes[is_user='true'] .mes_text {
+  align-items: flex-end !important;
+}
+.mes[is_user='false'] .mes_text {
+  align-items: flex-start !important;
+}
+
+.mes_text p {
+  margin: 0 !important;
+  padding: 9px 14px !important;
+  border-radius: 18px !important;
+  line-height: 1.5 !important;
+  width: fit-content !important;
+  max-width: 100% !important;
+  word-wrap: break-word !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.12) !important;
+  position: relative !important;
+}
+.mes[is_user='true'] .mes_text q {
+  color: var(--tt-quote-user-text) !important;
+}
+
+/* บับเบิ้ล AI (เทาเข้ม ชิดซ้าย) */
+.mes[is_user='false'] .mes_text p {
+  background: var(--tt-bubble-ai-bg) !important;
+  color: var(--tt-bubble-ai-text) !important;
+  border-bottom-left-radius: 4px !important;
+}
+
+/* บับเบิ้ล User (สีเขียว LINE ชิดขวา) */
+.mes[is_user='true'] .mes_text p {
+  background: var(--tt-bubble-user-bg) !important;
+  color: var(--tt-bubble-user-text) !important;
+  border-bottom-right-radius: 4px !important;
+}
+
+/* จัดมุมบับเบิ้ลให้เฉพาะก้อนแรกมีหางชัด */
+.mes[is_user='false'] .mes_text p:not(:first-child) {
+  border-bottom-left-radius: 18px !important;
+}
+.mes[is_user='true'] .mes_text p:not(:first-child) {
+  border-bottom-right-radius: 18px !important;
+}
+
+/* ===== 8. หางบับเบิ้ล (ก้อนแรกของแต่ละฝั่ง) ===== */
+.mes[is_user='false'] .mes_text p:first-child::before {
+  content: "" !important;
+  position: absolute !important;
+  left: -6px !important;
+  top: 10px !important;
+  border-width: 6px 8px 6px 0 !important;
+  border-style: solid !important;
+  border-color: transparent var(--tt-bubble-ai-tail) transparent transparent !important;
+}
+.mes[is_user='true'] .mes_text p:first-child::after {
+  content: "" !important;
+  position: absolute !important;
+  right: -6px !important;
+  top: 10px !important;
+  border-width: 6px 0 6px 8px !important;
+  border-style: solid !important;
+  border-color: transparent transparent transparent var(--tt-bubble-user-tail) !important;
+}
+
+/* ===== 9. เวลา + mesID + timer (เล็ก เนียนข้างบับเบิ้ล) ===== */
+.mes_timer,
+.mesIDDisplay,
+.tokenCounterDisplay {
+  font-size: 10px !important;
+  opacity: 0.45 !important;
+  padding: 0 6px !important;
+}
+
+/* ===== 10. ปุ่มบนข้อความ ===== */
+.mes_buttons {
+  opacity: 0.5 !important;
+}
+.mes_buttons:hover {
+  opacity: 1 !important;
+}
+
+/* ===== 11. Reasoning / Thought Process block ===== */
+.mes_reasoning_header {
+  height: 30px !important;
+  border: 1px solid rgba(var(--tt-accent-rgb),0.5) !important;
+  border-radius: 20px !important;
+  box-shadow: none !important;
+  color: var(--tt-accent) !important;
+  background: rgba(var(--tt-accent-rgb),0.08) !important;
+  display: inline-block !important;
+  padding: 0 12px !important;
+  margin-bottom: 8px !important;
+}
+.mes_reasoning {
+  background: var(--tt-reasoning-bg) !important;
+  border-radius: 12px !important;
+  padding: 8px 12px !important;
+  font-size: 13px !important;
+}
+
+/* ===== 12. Swipe icons ===== */
+#chat .swipe_right, #chat .swipe_left {
+  width: 24px !important;
+  height: 24px !important;
+  font-size: 18px !important;
+}
+
+/* ===== 13. Standout Header ===== */
+#extensions_settings .inline-drawer-toggle.inline-drawer-header,
+#extensions_settings2 .inline-drawer-toggle.inline-drawer-header,
+#user-settings-block h4,
+.standoutHeader {
+  background: var(--tt-accent) !important;
+  color: var(--tt-bubble-user-text) !important;
+  border-radius: 8px !important;
+}
+
+/* ===== 14. Dropdown (select2) ===== */
+.select2-container .select2-selection {
+  background-color: var(--tt-ui-bg) !important;
+  color: var(--tt-ui-text) !important;
+  border: 1px solid rgba(var(--tt-accent-rgb),0.5) !important;
+  border-radius: 8px !important;
+}
+.select2-container .select2-selection__rendered {
+  color: var(--tt-ui-text) !important;
+}
+.select2-dropdown {
+  background-color: var(--tt-ui-bg) !important;
+  border: 1px solid rgba(var(--tt-accent-rgb),0.5) !important;
+}
+
+/* ===== 15. Textarea / Input ===== */
+select, .form-control, .ui-widget-content {
+  background-color: var(--tt-ui-bg) !important;
+  color: var(--tt-ui-text) !important;
+  border-radius: 8px !important;
+}
+input[type="text"], input[type="search"], input[type="number"],
+textarea, .form-control {
+  background-color: var(--tt-ui-bg-soft) !important;
+  color: var(--tt-ui-text) !important;
+  border: 1px solid rgba(var(--tt-accent-rgb),0.4) !important;
+  border-radius: 8px !important;
+}
+
+/* ===== 16. ช่องพิมพ์ข้อความ (input area) ===== */
+#form_sheld {
+  padding: 4px 8px !important;
+  background: var(--tt-ui-bg-deep) !important;
+  border-top: 1px solid rgba(var(--tt-accent-rgb), 0.4) !important;
+}
+#send_form {
+  border: 1px solid rgba(var(--tt-accent-rgb),0.5) !important;
+  border-radius: 22px !important;
+  background: var(--tt-ui-bg) !important;
+}
+#send_form:focus-within {
+  border: 1px solid var(--tt-accent) !important;
+}
+#send_textarea {
+  background: transparent !important;
+}
+
+/* ===== 17. Top bar ===== */
+#top-bar {
+  box-shadow: none !important;
+  border-bottom: 1px solid rgba(var(--tt-accent-rgb),0.4) !important;
+  background: var(--tt-ui-bg-deep) !important;
+}
+
+/* ===== 18. Chat area ===== */
+#chat {
+  padding-left: 1% !important;
+  padding-right: 1% !important;
+  border: none !important;
+}
+
+/* ===== 19. Welcome Panel ===== */
+.welcomePanel {
+  background: var(--tt-welcome-bg) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(var(--tt-accent-rgb),0.5) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 8px 30px rgba(var(--tt-accent-rgb),0.15) !important;
+  color: var(--tt-ui-text) !important;
+  text-shadow: none !important;
+  padding: 30px !important;
+}
+
+/* ===== 20. ซ่อน Scrollbar ===== */
+::-webkit-scrollbar {
+  width: 0px !important;
+  background: transparent !important;
+}
+
+/* ===== 21. Responsive (มือถือ) ===== */
+@media (max-width: 768px) {
+  .mes_block {
+    max-width: 78% !important;
+  }
+  .mesAvatarWrapper .avatar,
+  .mesAvatarWrapper .avatar img {
+    width: 36px !important;
+    height: 36px !important;
+  }
+}
+
+/* ===== เพิ่มพื้นหลังบับเบิ้ล: List, Table, Code Block ===== */
+
+/* --- LIST --- */
+.mes_text ul,
+.mes_text ol {
+  margin: 0 !important;
+  padding: 9px 14px 9px 32px !important;
+  border-radius: 18px !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.12) !important;
+  width: fit-content !important;
+  max-width: 100% !important;
+}
+.mes[is_user='false'] .mes_text ul,
+.mes[is_user='false'] .mes_text ol {
+  background: var(--tt-bubble-ai-bg) !important;
+  color: var(--tt-bubble-ai-text) !important;
+}
+.mes[is_user='true'] .mes_text ul,
+.mes[is_user='true'] .mes_text ol {
+  background: var(--tt-bubble-user-bg) !important;
+  color: var(--tt-bubble-user-text) !important;
+}
+
+/* --- TABLE --- */
+.mes_text table {
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  border-radius: 14px !important;
+  overflow: hidden !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.12) !important;
+  margin: 0 !important;
+  width: fit-content !important;
+}
+.mes[is_user='false'] .mes_text table {
+  background: var(--tt-bubble-ai-bg) !important;
+  color: var(--tt-bubble-ai-text) !important;
+}
+.mes[is_user='true'] .mes_text table {
+  background: var(--tt-bubble-user-bg) !important;
+  color: var(--tt-bubble-user-text) !important;
+}
+.mes[is_user='false'] .mes_text th,
+.mes[is_user='false'] .mes_text td {
+  border: 1px solid rgba(255,255,255,0.1) !important;
+  padding: 6px 14px !important;
+}
+.mes[is_user='true'] .mes_text th,
+.mes[is_user='true'] .mes_text td {
+  border: 1px solid rgba(255,255,255,0.25) !important;
+  padding: 6px 14px !important;
+}
+/* หัวตาราง */
+.mes[is_user='false'] .mes_text th {
+  background: rgba(var(--tt-accent-rgb),0.1) !important;
+}
+.mes[is_user='true'] .mes_text th {
+  background: rgba(0,0,0,0.1) !important;
+}
+
+/* --- CODE BLOCK (pre > code) --- */
+.mes_text pre {
+  margin: 0 !important;
+  padding: 0 !important;
+  border-radius: 14px !important;
+  overflow: hidden !important;
+  background: transparent !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.18) !important;
+  width: fit-content !important;
+  max-width: 100% !important;
+}
+.mes_text pre code {
+  display: block !important;
+  padding: 12px 16px !important;
+  border-radius: 14px !important;
+  font-family: 'Courier New', monospace !important;
+  font-size: 13px !important;
+  overflow-x: auto !important;
+  white-space: pre !important;
+}
+/* AI side: dark terminal style */
+.mes[is_user='false'] .mes_text pre code {
+  background: var(--tt-code-bg) !important;
+  color: var(--tt-code-text) !important;
+}
+/* User side: darker green */
+.mes[is_user='true'] .mes_text pre code {
+  background: var(--tt-bubble-user-deep) !important;
+  color: var(--tt-bubble-user-text) !important;
+}
+
+/* --- INLINE CODE (backtick เดี่ยว) --- */
+.mes[is_user='false'] .mes_text code:not(pre code) {
+  background: rgba(255,255,255,0.08) !important;
+  color: var(--tt-inline-code-text) !important;
+  border-radius: 5px !important;
+  padding: 2px 6px !important;
+  font-family: 'Courier New', monospace !important;
+  font-size: 0.9em !important;
+}
+.mes[is_user='true'] .mes_text code:not(pre code) {
+  background: rgba(255,255,255,0.25) !important;
+  color: var(--tt-bubble-user-text) !important;
+  border-radius: 5px !important;
+  padding: 2px 6px !important;
+  font-family: 'Courier New', monospace !important;
+  font-size: 0.9em !important;
+}
+
+/* ===================================================
+   LINE Theme — Patch 3: UI Elements
+   ================================================= */
+
+/* ===== Preset Manager ===== */
+#completion_prompt_manager_list {
+  background-color: var(--tt-ui-bg-soft) !important;
+  border: 1px solid rgba(var(--tt-accent-rgb),0.3) !important;
+  border-radius: 12px !important;
+  padding: 8px !important;
+  color: var(--tt-ui-text) !important;
+}
+
+/* กล่องย่อยแต่ละ prompt */
+.completion_prompt_manager_prompt {
+  background-color: var(--tt-ui-bg) !important;
+  border: 1px solid rgba(var(--tt-accent-rgb),0.25) !important;
+  border-radius: 8px !important;
+  margin-bottom: 4px !important;
+  padding: 6px 10px !important;
+  color: var(--tt-ui-text) !important;
+}
+.completion_prompt_manager_prompt:hover {
+  background-color: rgba(var(--tt-accent-rgb),0.05) !important;
+  border-color: rgba(var(--tt-accent-rgb),0.5) !important;
+}
+
+/* header ข้อความใน prompt */
+.completion_prompt_manager_header span {
+  color: var(--tt-ui-text) !important;
+  text-shadow: none !important;
+  filter: none !important;
+}
+.completion_prompt_manager_header * {
+  font-weight: 600 !important;
+}
+
+/* Toggle ON → สีเขียว LINE */
+.prompt-manager-toggle-action.fa-toggle-on {
+  color: var(--tt-accent) !important;
+  filter: drop-shadow(0 0 4px rgba(var(--tt-accent-rgb),0.5)) !important;
+}
+
+/* Toggle OFF → เทาจางๆ */
+.prompt-manager-toggle-action.fa-toggle-off {
+  color: var(--tt-muted) !important;
+  filter: none !important;
+}
+
+/* ===== Text Pole / Textarea / Input ===== */
+textarea,
+input[type="text"],
+input[type="search"],
+input[type="number"],
+input[type="email"],
+input[type="password"],
+input[type="url"],
+.form-control,
+.text_pole {
+  background-color: var(--tt-ui-bg-soft) !important;
+  color: var(--tt-ui-text) !important;
+  border: 1px solid rgba(var(--tt-accent-rgb),0.4) !important;
+  border-radius: 10px !important;
+  box-shadow: none !important;
+}
+textarea:focus,
+input[type="text"]:focus,
+input[type="search"]:focus,
+input[type="number"]:focus,
+.form-control:focus,
+.text_pole:focus {
+  border-color: var(--tt-accent) !important;
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(var(--tt-accent-rgb),0.18) !important;
+}
+
+/* Checkbox: ไม่วาดเอง — ใช้ ::before ของ core (ดูคำอธิบายยาวใน
+   thai-novel-reader/theme.css) พึ่ง checkboxTextVar: "ui-text"
+   ใน theme.json ให้สี tick contrast ถูกต้อง */
+input[type="checkbox"]::after {
+  content: none !important;
+}
+
+/* ===== Select ===== */
+select,
+.form-select {
+  background-color: var(--tt-ui-bg-soft) !important;
+  color: var(--tt-ui-text) !important;
+  border: 1px solid rgba(var(--tt-accent-rgb),0.4) !important;
+  border-radius: 10px !important;
+  box-shadow: none !important;
+}
+select:focus,
+.form-select:focus {
+  border-color: var(--tt-accent) !important;
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(var(--tt-accent-rgb),0.18) !important;
+}
+
+/* ===== Tag Name (แก้ไข: ให้พื้นหลังแค่ .tag ชั้นนอก) ===== */
+.tag,
+.tagComplete .tag {
+  background-color: rgba(var(--tt-accent-rgb),0.1) !important;
+  color: var(--tt-ui-text) !important;
+  border: 1px solid rgba(var(--tt-accent-rgb),0.4) !important;
+  border-radius: 20px !important;
+  padding: 3px 10px !important;
+  box-shadow: none !important;
+}
+
+/* ล้างสไตล์ .tag_name ข้างใน ไม่ให้มีพื้นหลังซ้อน */
+.tag_name {
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  color: inherit !important;
+}
+
+.tag .tag_remove,
+.tagComplete .tag .tag_remove {
+  color: var(--tt-muted) !important;
+}
+.tag .tag_remove:hover {
+  color: var(--tt-inline-code-text) !important;
+}
+
+/* ===== Inline Drawer Content ===== */
+.inline-drawer-content {
+  background-color: var(--tt-ui-bg-soft) !important;
+  color: var(--tt-ui-text) !important;
+  border: 1px solid rgba(var(--tt-accent-rgb),0.2) !important;
+  border-top: none !important;
+  border-radius: 0 0 10px 10px !important;
+}
+
+/* Header ของ drawer */
+.inline-drawer-toggle.inline-drawer-header {
+  background-color: var(--tt-ui-bg) !important;
+  color: var(--tt-ui-text) !important;
+  border: 1px solid rgba(var(--tt-accent-rgb),0.3) !important;
+  border-radius: 10px !important;
+  text-shadow: none !important;
+}
+.inline-drawer-toggle.inline-drawer-header:hover {
+  background-color: rgba(var(--tt-accent-rgb),0.08) !important;
+}
+
+/* drawer ที่เปิดอยู่ ปรับมุมบนให้ต่อกับ content */
+.inline-drawer-toggle.inline-drawer-header.open {
+  border-radius: 10px 10px 0 0 !important;
+  border-bottom-color: transparent !important;
+}
+
+/* ===== Send Form Buttons: ขนาดและการจัดวาง ===== */
+
+/* ปุ่มซ้าย: options, extensions, quickPersona */
+#options_button,
+#extensionsMenuButton,
+#quickPersona {
+  width: 30px !important;
+  height: 30px !important;
+  min-width: 30px !important;
+  min-height: 30px !important;
+  font-size: 16px !important;
+  padding: 0 !important;
+  margin: 0 2px !important;
+  flex-shrink: 0 !important;
+  align-self: center !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 50% !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  line-height: 1 !important;
+}
+#options_button:hover,
+#extensionsMenuButton:hover,
+#quickPersona:hover {
+  background: rgba(var(--tt-accent-rgb),0.12) !important;
+}
+
+/* ===== rightSendForm (แก้: ไม่ทับ display ของปุ่มที่ถูกซ่อน) ===== */
+#rightSendForm {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  flex-shrink: 0 !important;
+  gap: 4px !important;
+  margin-left: 4px !important;
+}
+
+/* จัดขนาด/รูปทรงปุ่ม แต่ "ไม่แตะ display"
+   ปล่อยให้ SillyTavern คุมการซ่อน/โชว์เอง */
+#rightSendForm > div,
+#rightSendForm > button {
+  width: 30px !important;
+  height: 30px !important;
+  min-width: 30px !important;
+  min-height: 30px !important;
+  font-size: 16px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  flex-shrink: 0 !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 50% !important;
+  line-height: 1 !important;
+  box-shadow: none !important;
+}
+
+/* ปุ่มที่ SillyTavern สั่งซ่อน ให้ซ่อนต่อไป (กันเหนียว) */
+#rightSendForm [style*="display: none"],
+#rightSendForm [style*="display:none"] {
+  display: none !important;
+}
+
+/* ===== Heading & HR: บับเบิ้ลครอบ ===== */
+
+/* Heading h1-h4 ให้เป็นบับเบิ้ลเหมือน  */
+.mes_text h1,
+.mes_text h2,
+.mes_text h3,
+.mes_text h4,
+.mes_text h5,
+.mes_text h6 {
+  margin: 0 !important;
+  padding: 9px 14px !important;
+  border-radius: 18px !important;
+  line-height: 1.4 !important;
+  width: fit-content !important;
+  max-width: 100% !important;
+  word-wrap: break-word !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.12) !important;
+  border-bottom: none !important;
+}
+
+/* ฝั่ง AI: เทาเข้ม */
+.mes[is_user='false'] .mes_text h1,
+.mes[is_user='false'] .mes_text h2,
+.mes[is_user='false'] .mes_text h3,
+.mes[is_user='false'] .mes_text h4,
+.mes[is_user='false'] .mes_text h5,
+.mes[is_user='false'] .mes_text h6 {
+  background: var(--tt-bubble-ai-bg) !important;
+  color: var(--tt-bubble-ai-text) !important;
+}
+
+/* ฝั่ง User: เขียว LINE */
+.mes[is_user='true'] .mes_text h1,
+.mes[is_user='true'] .mes_text h2,
+.mes[is_user='true'] .mes_text h3,
+.mes[is_user='true'] .mes_text h4,
+.mes[is_user='true'] .mes_text h5,
+.mes[is_user='true'] .mes_text h6 {
+  background: var(--tt-bubble-user-bg) !important;
+  color: var(--tt-bubble-user-text) !important;
+}
+
+/* ===== HR: บับเบิ้ลจุดไข่ปลา (แยกก้อน + สีทึบ) ===== */
+.mes_text hr {
+  display: block !important;
+  margin: 5px 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  height: 30px !important;        /* กินพื้นที่จริง ไม่ให้ก้อนอื่นทับ */
+  width: 54px !important;
+  border-radius: 18px !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.12) !important;
+  overflow: visible !important;
+  position: relative !important;
+  box-sizing: border-box !important;
+}
+
+/* จุดสามจุด (สีทึบ ไม่กระพริบ) */
+/* จุดสามจุด (เล็กลง + จัดกลาง) */
+.mes_text hr::after {
+  content: "" !important;
+  position: absolute !important;
+  top: 50% !important;
+  left: 14px !important;
+  width: 6px !important;
+  height: 6px !important;
+  border-radius: 50% !important;
+  transform: translateY(-50%) !important;
+  box-shadow: 12px 0 0 currentColor, 24px 0 0 currentColor !important;
+}
+
+/* ฝั่ง AI: บับเบิ้ลเทาเข้ม จุดเขียวทึบ */
+.mes[is_user='false'] .mes_text hr {
+  background: var(--tt-bubble-ai-bg) !important;
+}
+.mes[is_user='false'] .mes_text hr::after {
+  background: var(--tt-accent) !important;
+  color: var(--tt-accent) !important;
+}
+
+/* ฝั่ง User: บับเบิ้ลเขียว จุดขาวทึบ */
+.mes[is_user='true'] .mes_text hr {
+  background: var(--tt-bubble-user-bg) !important;
+  margin-left: auto !important;
+}
+.mes[is_user='true'] .mes_text hr::after {
+  background: var(--tt-bubble-user-text) !important;
+  color: var(--tt-bubble-user-text) !important;
+  left: 14px !important;
+  right: auto !important;
+}
+
+/* ===== Prompt ที่ Toggle OFF ให้เห็นชัดขึ้น ===== */
+
+/* ชื่อ prompt ปกติ (เปิดอยู่) */
+.completion_prompt_manager_prompt_name,
+.completion_prompt_manager_prompt_name a {
+  color: var(--tt-ui-text) !important;
+}
+
+/* prompt ที่ถูกปิด: ตัวอักษรจางลงแต่ยังอ่านออก */
+.completion_prompt_manager_prompt_disabled .completion_prompt_manager_prompt_name,
+.completion_prompt_manager_prompt_disabled .completion_prompt_manager_prompt_name a,
+.completion_prompt_manager_prompt_disabled span {
+  color: var(--tt-muted) !important;
+  opacity: 1 !important;
+}
+
+/* พื้นหลังกล่อง prompt ที่ปิด: เทาจางๆ ให้ต่างจากตัวที่เปิด */
+.completion_prompt_manager_prompt_disabled {
+  background-color: rgba(255,255,255,0.06) !important;
+}
+
+/* กลุ่มปุ่มควบคุมด้านขวาของแต่ละ prompt */
+.prompt_manager_prompt_controls {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+.prompt_manager_prompt_controls .fa-solid {
+  color: var(--tt-ui-text) !important;
+}
+
+/* Toggle ON = เขียว LINE */
+.prompt-manager-toggle-action.fa-toggle-on {
+  color: var(--tt-accent) !important;
+}
+
+/* Toggle OFF = เทา ให้เห็นว่าปิดอยู่ */
+.prompt-manager-toggle-action.fa-toggle-off {
+  color: var(--tt-muted-deep) !important;
+}
+
+/* ===== Total Tokens / Token Count ให้เห็นชัด ===== */
+
+/* ===== Prompt Manager Header + Total Tokens ===== */
+
+/* จับ div แม่ทั้งหมด ให้ text node (ตัวเลข token) ได้สีตาม parent */
+.completion_prompt_manager_header,
+.completion_prompt_manager_header div,
+.completion_prompt_manager_header span,
+.completion_prompt_manager_header_advanced,
+.completion_prompt_manager_header_advanced span {
+  color: var(--tt-ui-text) !important;
+}
+
+/* ===== Blockquote (>) : บับเบิ้ลพร้อมแถบข้าง ===== */
+.mes_text blockquote {
+  margin: 0 !important;
+  padding: 9px 14px !important;
+  border-radius: 18px !important;
+  line-height: 1.5 !important;
+  width: fit-content !important;
+  max-width: 100% !important;
+  word-wrap: break-word !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.12) !important;
+  quotes: none !important;
+}
+
+/* ฝั่ง AI: บับเบิ้ลเขียวเข้มหม่น แถบเขียว */
+.mes[is_user='false'] .mes_text blockquote {
+  background: var(--tt-quote-ai-bg) !important;
+  color: var(--tt-bubble-ai-text) !important;
+  border-left: 4px solid var(--tt-accent) !important;
+}
+
+/* ฝั่ง User: บับเบิ้ลเขียวเข้ม แถบขาว */
+.mes[is_user='true'] .mes_text blockquote {
+  background: var(--tt-bubble-user-deep) !important;
+  color: var(--tt-bubble-user-text) !important;
+  border-left: 4px solid rgba(255,255,255,0.7) !important;
+}
+
+/* ข้อความข้างใน blockquote ไม่ให้มีบับเบิ้ลซ้อน */
+.mes_text blockquote p {
+  background: transparent !important;
+  color: inherit !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+}
+.mes_text blockquote p::before,
+.mes_text blockquote p::after {
+  display: none !important;
+}

@@ -83,6 +83,30 @@ async function fetchTheme(themeId) {
     return entry;
 }
 
+/** รายชื่อ theme pack ที่ติดตั้งไว้ทั้งหมด — [{id, name}] เรียงตาม themes/index.json
+ *  (แคชไว้ในตัวแปรนี้ ไม่ fetch ซ้ำ — รายการนี้ไม่เปลี่ยนระหว่าง session) */
+let themeRegistryCache = null;
+
+/** อ่าน themes/index.json แล้ว fetch theme.json ของทุกอันเพื่อเอาแค่ชื่อ
+ *  (ไป fetchTheme() เต็มๆ อีกทีตอนผู้ใช้เลือกจริง — ที่นี่ขอแค่ label) */
+async function fetchThemeRegistry() {
+    if (themeRegistryCache) return themeRegistryCache;
+    const ids = await $.getJSON(`${extensionFolderPath}/themes/index.json`);
+    const entries = await Promise.all(
+        ids.map(async (id) => {
+            try {
+                const meta = await $.getJSON(`${extensionFolderPath}/themes/${id}/theme.json`);
+                return { id, name: meta.name || id };
+            } catch (e) {
+                console.error(`[${extensionName}] อ่าน theme.json ของ "${id}" ไม่ได้:`, e);
+                return { id, name: id };
+            }
+        }),
+    );
+    themeRegistryCache = entries;
+    return entries;
+}
+
 function getOrCreateStyleTag(id) {
     let el = document.getElementById(id);
     if (!el) {
@@ -93,13 +117,26 @@ function getOrCreateStyleTag(id) {
     return el;
 }
 
-/** สร้าง @font-face ทั้งหมดจาก theme.json.fonts */
-function buildFontFaceCss(fonts) {
-    if (!Array.isArray(fonts)) return "";
-    const blocks = [];
-    for (const font of fonts) {
+/**
+ * สร้างเนื้อหาทั้งหมดของก้อน <style id="tinytheme-fonts"> — จาก
+ * theme.json.fontImports (URL ของ Google Fonts เป็นต้น) + theme.json.fonts
+ * (ไฟล์ .ttf ที่ประกาศ @font-face เอง)
+ *
+ * ลำดับสำคัญ: @import ต้องมาก่อนกฎอื่นทุกกฎในสไตล์ชีตเสมอ (ข้อจำกัดของ
+ * สเปก CSS เอง — ถ้าอยู่หลัง @font-face แม้แต่บรรทัดเดียว เบราว์เซอร์จะ
+ * เมิน @import ทั้งหมดเงียบๆ) จึงต้องแยกฟังก์ชันนี้ให้คุม "ก้อน fonts"
+ * ทั้งก้อนตั้งแต่ import จนถึง @font-face ไม่ใช่แค่ต่อ string มาเฉยๆ
+ */
+function buildFontsCss(meta) {
+    const parts = [];
+
+    for (const url of meta.fontImports || []) {
+        parts.push(`@import url('${url}');`);
+    }
+
+    for (const font of meta.fonts || []) {
         for (const src of font.src || []) {
-            blocks.push(
+            parts.push(
                 `@font-face {\n` +
                 `  font-family: '${font.family}';\n` +
                 `  font-style: ${src.style || "normal"};\n` +
@@ -110,7 +147,8 @@ function buildFontFaceCss(fonts) {
             );
         }
     }
-    return blocks.join("\n\n");
+
+    return parts.join("\n\n");
 }
 
 /** hex "#00CBC3" -> "0, 203, 195" (สำหรับ rgba(var(--tt-accent-rgb), .15) ) */
@@ -138,8 +176,12 @@ function buildVarsCss(themeId, meta) {
     }
 
     // แยก R/G/B ของสีข้อความหลักไว้ให้ checkbox ของ SillyTavern เอง
-    // คำนวณสี tick ให้ contrast ถูกต้อง (ดูคอมเมนต์ยาวใน theme.css)
-    const textChannels = hexToRgbChannels(mode.vars?.text);
+    // คำนวณสี tick ให้ contrast ถูกต้อง (ดูคอมเมนต์ยาวใน theme.css) — ธีม
+    // ส่วนใหญ่ใช้ชื่อตัวแปร "text" แต่บางธีม (เช่น line-chat ที่แยกสี UI
+    // ออกจากสีบับเบิ้ล) ตั้งชื่อว่าอย่างอื่น (เช่น "ui-text") จึงให้
+    // theme.json ระบุเองได้ผ่าน checkboxTextVar
+    const textVarKey = meta.checkboxTextVar || "text";
+    const textChannels = hexToRgbChannels(mode.vars?.[textVarKey]);
     if (textChannels) {
         lines.push(`  --tt-text-r: ${textChannels.r};`);
         lines.push(`  --tt-text-g: ${textChannels.g};`);
@@ -166,7 +208,40 @@ function buildVarsCss(themeId, meta) {
     if (columnWidth !== undefined) lines.push(`  --tt-column-width: ${columnWidth}px;`);
     if (indent !== undefined) lines.push(`  --tt-indent: ${indent}%;`);
 
-    return `:root {\n${lines.join("\n")}\n}`;
+    const rootBlock = `:root {\n${lines.join("\n")}\n}`;
+
+    // CSS ที่ใช้เฉพาะโหมดนี้โหมดเดียว (เช่น rainbow ต้องมีชั้นไล่สีทับแผง
+    // UI เพิ่มอีกก้อนที่โหมดอื่นไม่มี) — ต่อท้าย :root แล้วฉีดรวมไปกับ
+    // ก้อน vars เดียวกัน จะได้ถูกสร้างใหม่ทุกครั้งที่สลับโหมดเหมือนกัน
+    // ไม่ต้องเพิ่ม <style> ก้อนที่ 4 ให้ reorderStylesToEnd ต้องตามดูแลอีกจุด
+    if (mode.extraCss) {
+        return `${rootBlock}\n\n${mode.extraCss}`;
+    }
+    return rootBlock;
+}
+
+/**
+ * บังคับโหมดแชท (Flat/Bubbles/Document) ถ้า theme.json.requires.chatDisplay
+ * ระบุไว้ — บางธีม (เช่น line-chat) วาดบับเบิ้ลเองทั้งหมด ถ้าผู้ใช้ยังค้าง
+ * อยู่โหมด Document จาก Thai Novel Reader หน้าตาจะพังทันที core มีฟังก์ชัน
+ * applyChatDisplay() ทำแบบนี้อยู่แล้วแต่ไม่ export (ไม่มีใน power-user.js's
+ * export list) จึงต้องทำเองสามบรรทัดแทน — ตรงกับพฤติกรรมจริงของฟังก์ชัน
+ * นั้น (สลับ body class ตรงๆ + sync ค่า/ดรอปดาวน์ + เซฟ)
+ *
+ * ไม่มีกลไก "จำค่าเดิมไว้คืนตอนสลับออก" โดยตั้งใจ — ธีมที่ไม่ได้ระบุ
+ * requires.chatDisplay (เช่น Thai Novel Reader) ออกแบบให้ใช้ได้ในทุกโหมด
+ * แชทอยู่แล้ว จึงไม่จำเป็นต้องบังคับหรือคืนค่าอะไรเมื่อสลับมา
+ */
+function applyChatDisplayIfRequired(meta) {
+    const required = meta.requires?.chatDisplay;
+    if (required === undefined || required === null) return;
+
+    power_user.chat_display = required;
+    $("#chat_display").val(required).prop("selected", true);
+    $("body").removeClass("bubblechat documentstyle");
+    if (required === 1) $("body").addClass("bubblechat");
+    if (required === 2) $("body").addClass("documentstyle");
+    saveSettingsDebounced();
 }
 
 /** ฉีด/อัปเดต CSS 3 ก้อนตามลำดับ: fonts -> structure -> vars */
@@ -174,9 +249,10 @@ async function applyTheme(themeId) {
     const { meta, css } = await fetchTheme(themeId);
     activeThemeId = themeId;
 
-    getOrCreateStyleTag(STYLE_IDS.fonts).textContent = buildFontFaceCss(meta.fonts);
+    getOrCreateStyleTag(STYLE_IDS.fonts).textContent = buildFontsCss(meta);
     getOrCreateStyleTag(STYLE_IDS.structure).textContent = css;
     getOrCreateStyleTag(STYLE_IDS.vars).textContent = buildVarsCss(themeId, meta);
+    applyChatDisplayIfRequired(meta);
 
     return meta;
 }
@@ -200,6 +276,19 @@ function getActiveMeta() {
 function populatePanel($container) {
     const meta = getActiveMeta();
     if (!meta) return;
+
+    // เลือก theme pack (thai-novel-reader / line-chat / ...) — คนละชั้นกับ
+    // "โหมดสี" ข้างล่าง (โหมดสีคือสลับพาเลตต์ *ภายใน* pack เดียวกัน) แถวนี้
+    // ไม่ผ่าน controls[] allowlist เพราะเป็นตัวเลือกระดับ engine ไม่ใช่ของ
+    // ธีมใดธีมหนึ่ง — ต้องโชว์เสมอไม่ว่าจะใช้ pack ไหนอยู่ก็ตาม
+    if (themeRegistryCache) {
+        const $packSelect = $container.find(".tinytheme-pack-select");
+        $packSelect.empty();
+        for (const entry of themeRegistryCache) {
+            $packSelect.append(`<option value="${entry.id}">${entry.name}</option>`);
+        }
+        $packSelect.val(activeThemeId);
+    }
 
     // ซ่อนแถวควบคุมที่ธีมนี้ไม่รองรับ (theme.json's controls[] เป็น allowlist)
     const allowed = new Set(meta.controls || []);
@@ -343,6 +432,11 @@ jQuery(async () => {
             callGenericPopup($popupContent, POPUP_TYPE.TEXT, "", { okButton: "ปิด", wide: false });
         });
 
+        // ต้องรู้ก่อนว่ามี theme pack อะไรติดตั้งอยู่บ้าง เพื่อเติมดรอปดาวน์
+        // เลือก pack ใน populatePanel() ได้ — enableExtension() ข้างล่าง
+        // เรียก mountPanel() ซึ่งเรียก populatePanel() ต่อ จึงต้องรอให้เสร็จก่อน
+        await fetchThemeRegistry();
+
         if (settings.enabled) {
             await enableExtension();
         } else {
@@ -363,6 +457,21 @@ jQuery(async () => {
         });
 
         eventSource.on(event_types.APP_READY, reorderStylesToEnd);
+
+        // สลับ theme pack (คนละชั้นกับ .tinytheme-mode-select ข้างล่าง ซึ่ง
+        // สลับแค่โหมดสี *ภายใน* pack เดียวกัน) ต้อง applyTheme() เต็มรูปแบบ
+        // ใหม่ทั้งหมด — fetch theme.css/theme.json ก้อนใหม่ ไม่ใช่แค่เขียน
+        // ทับก้อน vars เหมือน refreshVars() เฉยๆ
+        $(document).on("change", ".tinytheme-pack-select", async function () {
+            const newThemeId = $(this).val();
+            const s = ensureSettings();
+            s.activeTheme = newThemeId;
+            saveSettingsDebounced();
+            const meta = await applyTheme(newThemeId);
+            $(".tinytheme-hint").text(`ธีมที่ใช้อยู่: ${meta.name}`);
+            syncStatsToPowerUser();
+            populateAllPanels();
+        });
 
         // Delegated handler: ใช้ class ไม่ใช่ id เพราะ panel เดียวกันอาจถูก
         // mount ซ้ำได้หลายกล่องพร้อมกัน (drawer + popup ในอนาคต)

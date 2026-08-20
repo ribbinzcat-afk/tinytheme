@@ -1,0 +1,327 @@
+{
+    "id": "line-chat",
+    "name": "Line Chat",
+    "description": "แชทบับเบิ้ลสไตล์ LINE/Messenger/Discord — 7 โหมดสี",
+    "author": "April & Claude (ต้นฉบับ) · พอร์ตเข้า TinyTheme โดย Apricity & Claude",
+    "version": "1.0.0",
+    "requires": {
+        "chatDisplay": 1
+    },
+    "checkboxTextVar": "ui-text",
+    "fontImports": [
+        "https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500&family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Noto+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap"
+    ],
+    "fonts": [
+        {
+            "family": "Jindara",
+            "src": [
+                {
+                    "url": "https://ik.imagekit.io/apricity/Font%20For%20Theme/Jindara/JS-Jindara-Normal.ttf",
+                    "weight": 400,
+                    "style": "normal"
+                },
+                {
+                    "url": "https://ik.imagekit.io/apricity/Font%20For%20Theme/Jindara/JS-Jindara-Italic.ttf",
+                    "weight": 400,
+                    "style": "italic"
+                },
+                {
+                    "url": "https://ik.imagekit.io/apricity/Font%20For%20Theme/Jindara/JS-Jindara-Bold.ttf",
+                    "weight": 700,
+                    "style": "normal"
+                },
+                {
+                    "url": "https://ik.imagekit.io/apricity/Font%20For%20Theme/Jindara/JS-Jindara-Bold-Italic.ttf",
+                    "weight": 700,
+                    "style": "italic"
+                }
+            ]
+        },
+        {
+            "family": "Garuda",
+            "src": [
+                {
+                    "url": "https://ik.imagekit.io/apricity/Font%20For%20Theme/Garuda/Garuda.ttf?updatedAt=1786902517645",
+                    "weight": 400,
+                    "style": "normal"
+                },
+                {
+                    "url": "https://ik.imagekit.io/apricity/Font%20For%20Theme/Garuda/Garuda-Oblique.ttf?updatedAt=1786902517755",
+                    "weight": 400,
+                    "style": "italic"
+                },
+                {
+                    "url": "https://ik.imagekit.io/apricity/Font%20For%20Theme/Garuda/Garuda-Bold.ttf?updatedAt=1786902517600",
+                    "weight": 700,
+                    "style": "normal"
+                },
+                {
+                    "url": "https://ik.imagekit.io/apricity/Font%20For%20Theme/Garuda/Garuda-BoldOblique.ttf?updatedAt=1786902517675",
+                    "weight": 700,
+                    "style": "italic"
+                }
+            ]
+        }
+    ],
+    "fontChoices": [
+        {
+            "label": "Kanit (ค่าเริ่มต้น)",
+            "value": "'Kanit', 'Sarabun', 'Noto Sans', sans-serif"
+        },
+        {
+            "label": "Jindara",
+            "value": "'Jindara', 'Sarabun', 'Noto Sans', sans-serif"
+        },
+        {
+            "label": "Garuda",
+            "value": "'Garuda', 'Sarabun', 'Noto Sans', sans-serif"
+        },
+        {
+            "label": "Sarabun",
+            "value": "'Sarabun', 'Noto Sans', sans-serif"
+        },
+        {
+            "label": "Noto Sans Thai",
+            "value": "'Noto Sans Thai', 'Noto Sans', sans-serif"
+        },
+        {
+            "label": "IBM Plex Sans Thai",
+            "value": "'IBM Plex Sans Thai', 'Noto Sans', sans-serif"
+        }
+    ],
+    "modes": {
+        "line-dark": {
+            "label": "LINE เข้ม (ต้นฉบับ)",
+            "vars": {
+                "bubble-user-bg": "#06C755",
+                "bubble-user-tail": "#06C755",
+                "bubble-user-text": "#FFFFFF",
+                "bubble-user-deep": "#04A040",
+                "bubble-ai-bg": "#303030",
+                "bubble-ai-tail": "#303030",
+                "bubble-ai-text": "#E8E8E8",
+                "accent": "#06C755",
+                "accent-rgb": "6, 199, 85",
+                "ui-bg": "#1E2124",
+                "ui-bg-soft": "#26292D",
+                "ui-bg-deep": "#1A1C1E",
+                "ui-text": "#E8E8E8",
+                "muted": "#6B7280",
+                "muted-deep": "#4B5563",
+                "italic-text": "#8BA8C8",
+                "quote-link-text": "#6BA8D9",
+                "quote-user-text": "#151F2E",
+                "inline-code-text": "#FF8A7A",
+                "code-bg": "#1E2A3A",
+                "code-text": "#E8F4FD",
+                "quote-ai-bg": "#243329",
+                "reasoning-bg": "rgba(48, 48, 48, 0.85)",
+                "welcome-bg": "rgba(30, 32, 35, 0.88)",
+                "ui-blur-tint": "rgba(24, 26, 28, 0.92)",
+                "chat-tint": "rgba(16, 18, 20, 0.85)"
+            }
+        },
+        "line-light": {
+            "label": "LINE สว่าง",
+            "vars": {
+                "bubble-user-bg": "#06C755",
+                "bubble-user-tail": "#06C755",
+                "bubble-user-text": "#FFFFFF",
+                "bubble-user-deep": "#04A040",
+                "bubble-ai-bg": "#FFFFFF",
+                "bubble-ai-tail": "#FFFFFF",
+                "bubble-ai-text": "#2B2B2B",
+                "accent": "#06C755",
+                "accent-rgb": "6, 199, 85",
+                "ui-bg": "#FFFFFF",
+                "ui-bg-soft": "#F5F7FA",
+                "ui-bg-deep": "#FFFFFF",
+                "ui-text": "#2B2B2B",
+                "muted": "#93A1A1",
+                "muted-deep": "#AEBECF",
+                "italic-text": "#5B7A9D",
+                "quote-link-text": "#4A8CC7",
+                "quote-user-text": "#151F2E",
+                "inline-code-text": "#C0392B",
+                "code-bg": "#1E2A3A",
+                "code-text": "#E8F4FD",
+                "quote-ai-bg": "#F0F9F4",
+                "reasoning-bg": "rgba(255, 255, 255, 0.6)",
+                "welcome-bg": "rgba(255, 255, 255, 0.85)",
+                "ui-blur-tint": "rgba(255, 255, 255, 0.9)",
+                "chat-tint": "rgba(174, 190, 207, 0.1)"
+            }
+        },
+        "messenger-dark": {
+            "label": "Messenger เข้ม",
+            "vars": {
+                "bubble-user-bg": "#0084FF",
+                "bubble-user-tail": "#0084FF",
+                "bubble-user-text": "#FFFFFF",
+                "bubble-user-deep": "#005FCC",
+                "bubble-ai-bg": "#3E4042",
+                "bubble-ai-tail": "#3E4042",
+                "bubble-ai-text": "#E4E6EB",
+                "accent": "#0084FF",
+                "accent-rgb": "0, 132, 255",
+                "ui-bg": "#242526",
+                "ui-bg-soft": "#3A3B3C",
+                "ui-bg-deep": "#18191A",
+                "ui-text": "#E4E6EB",
+                "muted": "#8A8D91",
+                "muted-deep": "#65676B",
+                "italic-text": "#8BA8C8",
+                "quote-link-text": "#6BA8D9",
+                "quote-user-text": "#E7F3FF",
+                "inline-code-text": "#FF8A7A",
+                "code-bg": "#18191A",
+                "code-text": "#E8F4FD",
+                "quote-ai-bg": "#263140",
+                "reasoning-bg": "rgba(58, 59, 60, 0.85)",
+                "welcome-bg": "rgba(36, 37, 38, 0.88)",
+                "ui-blur-tint": "rgba(24, 25, 26, 0.92)",
+                "chat-tint": "rgba(16, 18, 20, 0.85)"
+            }
+        },
+        "messenger-light": {
+            "label": "Messenger สว่าง",
+            "vars": {
+                "bubble-user-bg": "#0084FF",
+                "bubble-user-tail": "#0084FF",
+                "bubble-user-text": "#FFFFFF",
+                "bubble-user-deep": "#005FCC",
+                "bubble-ai-bg": "#F0F0F0",
+                "bubble-ai-tail": "#F0F0F0",
+                "bubble-ai-text": "#050505",
+                "accent": "#0084FF",
+                "accent-rgb": "0, 132, 255",
+                "ui-bg": "#FFFFFF",
+                "ui-bg-soft": "#F0F2F5",
+                "ui-bg-deep": "#FFFFFF",
+                "ui-text": "#050505",
+                "muted": "#8A8D91",
+                "muted-deep": "#BCC0C4",
+                "italic-text": "#5B7A9D",
+                "quote-link-text": "#4A8CC7",
+                "quote-user-text": "#E7F3FF",
+                "inline-code-text": "#C0392B",
+                "code-bg": "#1E2A3A",
+                "code-text": "#E8F4FD",
+                "quote-ai-bg": "#E7F3FF",
+                "reasoning-bg": "rgba(255, 255, 255, 0.6)",
+                "welcome-bg": "rgba(255, 255, 255, 0.85)",
+                "ui-blur-tint": "rgba(255, 255, 255, 0.9)",
+                "chat-tint": "rgba(174, 190, 207, 0.1)"
+            }
+        },
+        "messenger-gradient": {
+            "label": "Messenger ไล่สี",
+            "vars": {
+                "bubble-user-bg": "linear-gradient(135deg, #0695FF 0%, #7B3FF2 60%, #A334FA 100%)",
+                "bubble-user-tail": "#7B3FF2",
+                "bubble-user-text": "#FFFFFF",
+                "bubble-user-deep": "#7B3FF2",
+                "bubble-ai-bg": "linear-gradient(135deg, #3E4042, #2A2C2E)",
+                "bubble-ai-tail": "#3E4042",
+                "bubble-ai-text": "#E4E6EB",
+                "accent": "#7B3FF2",
+                "accent-rgb": "123, 63, 242",
+                "ui-bg": "#242526",
+                "ui-bg-soft": "#3A3B3C",
+                "ui-bg-deep": "#18191A",
+                "ui-text": "#E4E6EB",
+                "muted": "#8A8D91",
+                "muted-deep": "#65676B",
+                "italic-text": "#8BA8C8",
+                "quote-link-text": "#6BA8D9",
+                "quote-user-text": "#E7F3FF",
+                "inline-code-text": "#FF8A7A",
+                "code-bg": "#18191A",
+                "code-text": "#E8F4FD",
+                "quote-ai-bg": "#263140",
+                "reasoning-bg": "rgba(58, 59, 60, 0.85)",
+                "welcome-bg": "rgba(36, 37, 38, 0.88)",
+                "ui-blur-tint": "rgba(24, 25, 26, 0.92)",
+                "chat-tint": "rgba(16, 18, 20, 0.85)"
+            }
+        },
+        "discord": {
+            "label": "Discord",
+            "vars": {
+                "bubble-user-bg": "#5865F2",
+                "bubble-user-tail": "#5865F2",
+                "bubble-user-text": "#FFFFFF",
+                "bubble-user-deep": "#4752C4",
+                "bubble-ai-bg": "#383A40",
+                "bubble-ai-tail": "#383A40",
+                "bubble-ai-text": "#DBDEE1",
+                "accent": "#5865F2",
+                "accent-rgb": "88, 101, 242",
+                "ui-bg": "#313338",
+                "ui-bg-soft": "#2B2D31",
+                "ui-bg-deep": "#1E1F22",
+                "ui-text": "#DBDEE1",
+                "muted": "#80848E",
+                "muted-deep": "#4E5058",
+                "italic-text": "#8BA8C8",
+                "quote-link-text": "#6BA8D9",
+                "quote-user-text": "#C9CDFB",
+                "inline-code-text": "#FF8A7A",
+                "code-bg": "#1E1F22",
+                "code-text": "#E8F4FD",
+                "quote-ai-bg": "#2E3035",
+                "reasoning-bg": "rgba(43, 45, 49, 0.85)",
+                "welcome-bg": "rgba(49, 51, 56, 0.88)",
+                "ui-blur-tint": "rgba(30, 31, 34, 0.92)",
+                "chat-tint": "rgba(16, 18, 20, 0.85)"
+            }
+        },
+        "rainbow": {
+            "label": "สายรุ้ง",
+            "vars": {
+                "bubble-user-bg": "linear-gradient(135deg, #EADFF9 0%, #FFDFEC 50%, #FFF7D6 100%)",
+                "bubble-user-tail": "#FFF3D2",
+                "bubble-user-text": "#6F5673",
+                "bubble-user-deep": "#F2C3D8",
+                "bubble-ai-bg": "linear-gradient(135deg, #DFF3FC 0%, #EBE2FA 100%)",
+                "bubble-ai-tail": "#DFF3FC",
+                "bubble-ai-text": "#566179",
+                "accent": "#CBA5EC",
+                "accent-rgb": "203, 165, 236",
+                "ui-bg": "#FFFEFB",
+                "ui-bg-soft": "#FBF7FD",
+                "ui-bg-deep": "#FDF9F4",
+                "ui-text": "#6B5D6E",
+                "muted": "#BCB1C2",
+                "muted-deep": "#E0D8E6",
+                "italic-text": "#AC96CE",
+                "quote-link-text": "#8FBCE6",
+                "quote-user-text": "#8A5C80",
+                "inline-code-text": "#E88BB1",
+                "code-bg": "#5A4C6E",
+                "code-text": "#F7F2FE",
+                "quote-ai-bg": "#F1F7FB",
+                "reasoning-bg": "rgba(255, 254, 251, 0.8)",
+                "welcome-bg": "rgba(255, 254, 251, 0.92)",
+                "ui-blur-tint": "rgba(255, 254, 251, 0.94)",
+                "chat-tint": "rgba(251, 247, 253, 0.3)"
+            },
+            "extraCss": "/* Rainbow Panel Tint — แผง UI สีรุ้งจางๆ ทับพื้น --tt-ui-blur-tint\n   (background-color รับ gradient ตรงๆ ไม่ได้ เลยใช้ background-image ซ้อนแทน) */\n.drawer-content,\n#left-nav-panel, #right-nav-panel,\n#floatingPrompt, #cfgConfig, #WorldInfo,\n#character_popup, .popup {\n  background-image: linear-gradient(160deg,\n    rgba(216, 194, 240, 0.3) 0%,\n    rgba(255, 201, 222, 0.3) 33%,\n    rgba(255, 243, 184, 0.3) 66%,\n    rgba(201, 234, 249, 0.3) 100%) !important;\n}"
+        }
+    },
+    "defaults": {
+        "mode": "line-dark",
+        "proseSize": 15,
+        "proseFont": "'Kanit', 'Sarabun', 'Noto Sans', sans-serif",
+        "mesIDDisplay_enabled": true,
+        "timer_enabled": true,
+        "message_token_count_enabled": true
+    },
+    "controls": [
+        "mode",
+        "proseSize",
+        "proseFont",
+        "accent",
+        "stats"
+    ]
+}
