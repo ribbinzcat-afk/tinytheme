@@ -1,0 +1,530 @@
+/* =========================================================================
+   Otome Dialogue Box — theme.css (structure)
+   A SillyTavern theme pack for the TinyTheme engine: reskins each message
+   as an otome/visual-novel dialogue box — a name tag that tabs off the
+   box's top edge, an avatar bust overlapping the top-left corner, small
+   diamond flourishes on the tag, and a soft decorative accent icon in the
+   corner. No Visual Novel Mode / sprite required — built for the normal
+   scrolling chat feed, one dialogue box per message.
+
+   This file must use ONLY var(--tt-*) — no raw hex. Palette values and
+   @font-face rules are injected separately by the engine (see
+   THEME-AUTHORING.md §2 "The three <style> blocks").
+   ========================================================================= */
+
+/* 1. Map SmartTheme vars → our palette (see THEME-AUTHORING.md §5 — these
+   MUST carry !important or core's own inline :root style wins). */
+:root {
+  --SmartThemeBodyColor: var(--tt-text) !important;
+  --SmartThemeEmColor: var(--tt-text-muted) !important;
+  --SmartThemeUnderlineColor: var(--tt-accent) !important;
+  --SmartThemeQuoteColor: var(--tt-text) !important;
+  --SmartThemeBorderColor: var(--tt-line) !important;
+  --SmartThemeBlurTintColor: var(--tt-card) !important;
+  --SmartThemeChatTintColor: var(--tt-page) !important;
+  --mainFontFamily: 'Sarabun', 'Noto Sans', sans-serif !important;
+  --monoFontFamily: 'Noto Sans Mono', 'Courier New', monospace !important;
+}
+
+body {
+  font-family: 'Sarabun', 'Noto Sans', sans-serif !important;
+  background-color: var(--tt-page) !important;
+}
+
+* {
+  text-shadow: none !important;
+}
+
+#bg1 {
+  filter: grayscale(var(--tt-grayscale)) contrast(var(--tt-contrast)) !important;
+}
+
+#sheld, #chat {
+  background: transparent !important;
+}
+
+#chat {
+  padding: 24px 16px !important;
+  /* #chat's own scrollbar eats width from the right edge only, throwing
+     centered cards off by a few px — see THEME-AUTHORING.md §5. */
+  scrollbar-gutter: stable both-edges;
+}
+
+/* 2. .mes — the dialogue box itself ---------------------------------------
+   position:relative already comes from style.css's own base .mes rule —
+   the avatar/name-tag below anchor to THIS element via position:absolute,
+   not to any wrapper we'd have to add ourselves. */
+.mes {
+  display: block !important;
+  width: 100% !important;
+  max-width: var(--tt-column-width) !important;
+  margin: 44px auto 20px auto !important;
+  padding: 30px 26px 24px 26px !important;
+  background: var(--tt-card) !important;
+  border: 2px solid var(--tt-line) !important;
+  border-radius: 22px !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.10) !important;
+}
+
+/* User turns: same dialogue-box language, distinguished with the soft
+   secondary surface instead of a mirrored/right-aligned layout — otome
+   dialogue boxes are inherently one-sided (always reads left-to-right as
+   the "screen"), not a two-column messenger. */
+.mes[is_user="true"] {
+  background: var(--tt-card-alt) !important;
+}
+
+.mes[is_system="true"] {
+  background: var(--tt-card-alt) !important;
+  border-style: dashed !important;
+}
+
+/* body.documentstyle (chat_display: 2) force-hides .mesAvatarWrapper,
+   .name_text and .timestamp via long, high-specificity !important
+   selectors in core's toggle-dependent.css — an !important declaration
+   beats another !important by SPECIFICITY first, source order only
+   second, so a bare `.mesAvatarWrapper { display: ... !important }`
+   still loses. Must match core's own selector strings exactly to win on
+   equal specificity plus later source order (see THEME-AUTHORING.md §5;
+   Thai Novel Reader hit this same bug first). Confirmed against the real
+   DOM: .ch_name IS nested inside .mes_block here, not a sibling. */
+body.documentstyle #chat .mes .mesAvatarWrapper {
+  display: block !important;
+}
+body.documentstyle #chat .mes .mes_block .ch_name .name_text {
+  display: inline-block !important;
+}
+body.documentstyle #chat .mes .mes_block .ch_name .timestamp {
+  display: none !important;
+}
+/* Document mode also indents .mes_text 20px (a plain, non-!important
+   declaration in core, so any !important here wins outright) to make
+   room for an avatar that isn't inline with the text in this layout —
+   ours lives in .mesAvatarWrapper, absolutely positioned. Left unfixed,
+   the dialogue text sits 20px off from the name tag/avatar above it. */
+body.documentstyle #chat .mes .mes_text {
+  margin-left: 0 !important;
+}
+
+/* 3. Avatar — small bust overlapping the box's top-left corner ------------ */
+.mesAvatarWrapper {
+  display: block !important;
+  position: absolute !important;
+  left: 22px !important;
+  top: -26px !important;
+  z-index: 4 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.mesAvatarWrapper .avatar,
+.mesAvatarWrapper .avatar img {
+  width: 60px !important;
+  height: 60px !important;
+  border-radius: 50% !important;
+  border: 3px solid var(--tt-card) !important;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.18) !important;
+  filter: grayscale(var(--tt-grayscale)) contrast(var(--tt-contrast)) !important;
+}
+
+/* 4. Name tag — pill that tabs off the top edge, right of the avatar ------
+   IMPORTANT: do not touch .mes_buttons/.mes_edit_buttons display, and do
+   not anchor them to .ch_name (see THEME-AUTHORING.md §5) — they get
+   their own absolute position in section 6, independent of this tag. */
+.ch_name {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  position: absolute !important;
+  top: -16px !important;
+  left: 96px !important;
+  max-width: calc(100% - 120px) !important;
+  z-index: 3 !important;
+  background: var(--tt-accent) !important;
+  padding: 7px 22px !important;
+  border-radius: 999px !important;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.16) !important;
+}
+
+/* Small diamond flourishes at each end of the tag — the CSS-only stand-in
+   for the ornate corner marks seen on real otome dialogue name plates. */
+.ch_name::before,
+.ch_name::after {
+  content: "" !important;
+  position: absolute !important;
+  top: 50% !important;
+  width: 5px !important;
+  height: 5px !important;
+  background: rgba(255, 255, 255, 0.75) !important;
+  transform: translateY(-50%) rotate(45deg) !important;
+  pointer-events: none !important;
+}
+.ch_name::before {
+  left: 9px !important;
+}
+.ch_name::after {
+  right: 9px !important;
+}
+
+.ch_name .flex-container.flex1,
+.ch_name .flex-container.alignItemsBaseline {
+  display: contents !important;
+}
+
+.name_text {
+  color: #FFFFFF !important;
+  font-weight: 700 !important;
+  font-size: 15px !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.mes[is_user="true"] .name_text::before {
+  content: "" !important;
+}
+
+/* Timestamp moves out of the tag entirely — small and muted, tucked at
+   the box's top-right alongside the meta stats (section 7). */
+.ch_name .timestamp {
+  display: none !important;
+}
+
+/* 5. mes_text — the actual dialogue ---------------------------------------
+   overflow-wrap (never break-all/anywhere) so long Thai words wrap at
+   line boundaries but never split mid-character — see THEME-AUTHORING.md §5. */
+.mes_block {
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.mes_text {
+  font-family: var(--tt-prose-font) !important;
+  font-size: var(--tt-prose-size) !important;
+  line-height: var(--tt-prose-line-height) !important;
+  color: var(--tt-text) !important;
+  overflow-wrap: break-word !important;
+  word-break: normal !important;
+  padding-left: 34px !important;
+  padding-top: 14px !important;
+}
+
+.mes_text p {
+  margin: 0 0 12px 0 !important;
+}
+.mes_text p:last-child {
+  margin-bottom: 0 !important;
+}
+
+.mes_text em, .mes_text i {
+  color: var(--tt-text-muted) !important;
+  font-style: italic !important;
+}
+
+.mes_text strong, .mes_text b {
+  color: var(--tt-text-strong) !important;
+}
+
+.mes_text a {
+  color: var(--tt-accent) !important;
+}
+
+.mes_text hr {
+  border: none !important;
+  border-top: 1px dashed var(--tt-line) !important;
+  margin: 16px 0 !important;
+}
+
+.mes_text blockquote {
+  background: var(--tt-card-alt) !important;
+  border-left: 3px solid var(--tt-accent) !important;
+  border-radius: 8px !important;
+  padding: 10px 14px !important;
+  margin: 10px 0 !important;
+  color: var(--tt-text) !important;
+}
+
+.mes_text table {
+  border-collapse: collapse !important;
+  width: 100% !important;
+  margin: 10px 0 !important;
+}
+.mes_text td, .mes_text th {
+  border: 1px solid var(--tt-line) !important;
+  padding: 6px 10px !important;
+  color: var(--tt-text) !important;
+}
+.mes_text th {
+  background: var(--tt-card-alt) !important;
+}
+
+.mes_text pre {
+  background: var(--tt-card-alt) !important;
+  border: 1px solid var(--tt-line) !important;
+  border-radius: 10px !important;
+  padding: 10px !important;
+}
+
+.mes_text pre code, .mes_text code {
+  font-family: 'Noto Sans Mono', 'Courier New', monospace !important;
+  font-size: 0.8em !important;
+  line-height: 1.5 !important;
+  background: var(--tt-card-alt) !important;
+  color: var(--tt-text) !important;
+}
+/* highlight.js's bundled dark-IDE theme hardcodes both a base color AND a
+   per-token <span class="hljs-xxx"> color for every recognized keyword/
+   string/comment — the base is already overridden above (higher
+   specificity than .hljs's single class beats it), but the token spans
+   need their own reset or they keep their neon dark-IDE colors regardless
+   of palette. See THEME-AUTHORING.md §5. */
+.mes_text pre code.hljs span {
+  color: inherit !important;
+}
+
+.mes_text code:not(pre code) {
+  background: var(--tt-card-alt) !important;
+  color: var(--tt-accent) !important;
+  border-radius: 5px !important;
+  padding: 1px 6px !important;
+}
+
+/* Decorative accent — a small soft heart tucked in the box's corner,
+   the "flourish icon" seen in every otome dialogue box reference. Font
+   Awesome ships with SillyTavern already, so this needs no image asset. */
+.mes_block::after {
+  content: "\f004" !important;
+  font-family: "Font Awesome 6 Free" !important;
+  font-weight: 900 !important;
+  position: absolute !important;
+  bottom: 14px !important;
+  right: 18px !important;
+  font-size: 15px !important;
+  color: var(--tt-accent-soft) !important;
+  opacity: 0.55 !important;
+  pointer-events: none !important;
+}
+
+/* 6. Buttons / meta stats — top-right corner of the box, independent of
+   the name tag (see THEME-AUTHORING.md §5 on why not to anchor to
+   .ch_name, and why display must stay untouched). --------------------- */
+.ch_name .mes_buttons,
+.ch_name .mes_edit_buttons {
+  position: absolute !important;
+  top: 14px !important;
+  right: 18px !important;
+  opacity: 0.4 !important;
+  transition: opacity var(--animation-duration, 125ms) ease !important;
+}
+
+.mes:hover .mes_buttons,
+.mes:hover .mes_edit_buttons {
+  opacity: 1 !important;
+}
+
+.ch_name .mes_buttons,
+.ch_name .extraMesButtons {
+  flex-wrap: wrap !important;
+  justify-content: flex-end !important;
+  overflow: visible !important;
+}
+.ch_name .extraMesButtons {
+  max-width: min(220px, calc(100vw - 32px)) !important;
+}
+
+.mes_button, .mes_edit_buttons .menu_button {
+  color: var(--tt-text-muted) !important;
+}
+.mes_button:hover {
+  color: var(--tt-accent) !important;
+}
+
+/* mesIDDisplay / mes_timer / tokenCounterDisplay — small muted row above
+   the buttons, top-right of the box. */
+.mesIDDisplay, .mes_timer, .tokenCounterDisplay, .timestamp-icon {
+  position: absolute !important;
+  top: 38px !important;
+  right: 18px !important;
+  font-size: 10px !important;
+  color: var(--tt-text-muted) !important;
+  opacity: 0.75 !important;
+}
+.mesIDDisplay { right: 76px !important; }
+.mes_timer { right: 46px !important; }
+.tokenCounterDisplay { right: 18px !important; }
+
+/* 7. Core bug workarounds — not related to this theme's own palette,
+   found while building thai-novel-reader/line-chat, see
+   THEME-AUTHORING.md §5. Included from the start this time. ------------- */
+
+.drawer-icon {
+  color: var(--tt-text) !important;
+}
+.drawer-icon.openIcon {
+  color: var(--tt-accent) !important;
+}
+.drawer-icon.closedIcon {
+  opacity: 0.7 !important;
+}
+.drawer-icon.closedIcon:hover {
+  opacity: 1 !important;
+}
+
+.disabledWIEntry {
+  opacity: 0.6 !important;
+}
+.disabledWIEntry:not(input):hover {
+  opacity: 1 !important;
+}
+
+#completion_prompt_manager #completion_prompt_manager_list .completion_prompt_manager_prompt_disabled .completion_prompt_manager_prompt_name,
+#completion_prompt_manager #completion_prompt_manager_list .completion_prompt_manager_prompt_disabled .completion_prompt_manager_prompt_name .prompt-manager-inspect-action {
+  color: var(--tt-text-muted) !important;
+}
+#completion_prompt_manager .completion_prompt_manager_header {
+  color: var(--tt-text-muted) !important;
+}
+#completion_prompt_manager #completion_prompt_manager_list .completion_prompt_manager_prompt.completion_prompt_manager_prompt_disabled {
+  border: 1px solid var(--tt-line) !important;
+}
+
+select option[disabled]:not(:checked) {
+  color: var(--tt-text-muted) !important;
+}
+
+/* Never draw our own ::after checkmark — core already draws one via
+   ::before with contrast auto-computed from checkboxTextVar (handled by
+   the engine at :root). This just guards against a DIFFERENT native
+   theme the user might pair us with adding its own ::after. */
+input[type="checkbox"]::after {
+  content: none !important;
+}
+
+.menu_button.fav_on {
+  color: var(--golden) !important;
+}
+.menu_button.world_set,
+.menu_button.toggleEnabled {
+  color: var(--active) !important;
+}
+
+/* Thai text with no spaces inside a min-content-width element gets
+   squeezed into a single vertical column of characters otherwise. */
+.menu_button {
+  width: auto !important;
+}
+
+/* 8. Panels — settings drawers, popups, World Info, etc. ------------------ */
+.drawer-content, #floatingPrompt, #WorldInfo, #character_popup, .popup,
+#left-nav-panel, #right-nav-panel {
+  background-color: var(--tt-card) !important;
+  color: var(--tt-text) !important;
+}
+
+input[type="text"], input[type="search"], input[type="number"],
+input[type="password"], textarea, .text_pole, .form-control {
+  background-color: var(--tt-card-alt) !important;
+  color: var(--tt-text) !important;
+  border: 1px solid var(--tt-line) !important;
+}
+input[type="text"]:focus, textarea:focus, .text_pole:focus {
+  border-color: var(--tt-accent) !important;
+  box-shadow: 0 0 0 2px rgba(var(--tt-accent-rgb), 0.15) !important;
+}
+
+.select2-container .select2-selection,
+.select2-dropdown, select {
+  background-color: var(--tt-card-alt) !important;
+  color: var(--tt-text) !important;
+  border: 1px solid var(--tt-line) !important;
+}
+.select2-results__option--highlighted {
+  background-color: var(--tt-accent) !important;
+  color: #FFFFFF !important;
+}
+
+.menu_button:not(.disabled):not([disabled]):hover {
+  background-color: var(--tt-accent) !important;
+  color: #FFFFFF !important;
+  border-color: var(--tt-accent) !important;
+}
+
+.tag {
+  background-color: transparent !important;
+  color: var(--tt-text-muted) !important;
+  border: 1px solid var(--tt-line) !important;
+}
+
+/* 9. Top bar / send form --------------------------------------------------- */
+#top-bar {
+  background: var(--tt-card) !important;
+  border-bottom: 1px solid var(--tt-line) !important;
+  box-shadow: none !important;
+}
+
+#form_sheld, #send_form {
+  background: var(--tt-page) !important;
+  border-top: 1px solid var(--tt-line) !important;
+}
+
+#send_textarea, #sendTextArea {
+  background: var(--tt-card) !important;
+  color: var(--tt-text) !important;
+  border: 1px solid var(--tt-line) !important;
+  border-radius: 14px !important;
+}
+
+/* 10. character list ------------------------------------------------------- */
+#rm_print_characters_block {
+  background-color: var(--tt-page) !important;
+}
+.character_select {
+  background-color: var(--tt-card) !important;
+  border-bottom: 1px solid var(--tt-line) !important;
+  color: var(--tt-text) !important;
+}
+.character_select:hover {
+  background-color: var(--tt-card-alt) !important;
+}
+.character_select .avatar, .character_select .avatar img {
+  border-radius: 10px !important;
+}
+.character_select .ch_name {
+  position: static !important;
+  background: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  color: var(--tt-text-strong) !important;
+}
+.character_select .ch_name::before,
+.character_select .ch_name::after {
+  content: none !important;
+}
+.character_select .name_text {
+  color: var(--tt-text-strong) !important;
+}
+
+/* 11. mobile ---------------------------------------------------------------- */
+@media (max-width: 600px) {
+  .mes {
+    margin-left: 8px !important;
+    margin-right: 8px !important;
+    padding: 26px 18px 20px 18px !important;
+  }
+  .mesAvatarWrapper {
+    left: 14px !important;
+  }
+  .mesAvatarWrapper .avatar, .mesAvatarWrapper .avatar img {
+    width: 50px !important;
+    height: 50px !important;
+  }
+  .ch_name {
+    left: 78px !important;
+    max-width: calc(100% - 96px) !important;
+  }
+  .mes_text {
+    padding-left: 0 !important;
+  }
+}

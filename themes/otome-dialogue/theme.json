@@ -1,0 +1,114 @@
+{
+    "id": "otome-dialogue",
+    "name": "Otome Dialogue Box",
+    "description": "กล่องข้อความสไตล์ otome/visual novel — ป้ายชื่อยื่นออกจากขอบกล่อง อวาตาร์ซ้อนทับมุมกล่อง ไม่ต้องพึ่ง Visual Novel Mode หรือ sprite",
+    "author": "Apricity & Claude",
+    "version": "1.0.0",
+
+    "fontImports": [
+        "https://fonts.googleapis.com/css2?family=Mali:ital,wght@0,400;0,600;0,700;1,400&family=Chonburi&display=swap"
+    ],
+    "fonts": [],
+
+    "fontChoices": [
+        { "label": "Mali (ค่าเริ่มต้น)", "value": "'Mali', 'Sarabun', 'Noto Sans', sans-serif" },
+        { "label": "Sarabun", "value": "'Sarabun', 'Noto Sans', sans-serif" },
+        { "label": "Kanit", "value": "'Kanit', 'Noto Sans', sans-serif" },
+        { "label": "Noto Sans Thai", "value": "'Noto Sans Thai', 'Noto Sans', sans-serif" }
+    ],
+
+    "modes": {
+        "sakura": {
+            "label": "ซากุระพาสเทล",
+            "vars": {
+                "page": "#FDF1F5",
+                "card": "#FFFFFF",
+                "card-alt": "#FCE9F0",
+                "text": "#4A3B45",
+                "text-strong": "#33262F",
+                "text-muted": "#B08A9E",
+                "line": "#F4CEDF",
+                "accent": "#F080AA",
+                "accent-rgb": "240, 128, 170",
+                "accent-soft": "#FBC7DA",
+                "grayscale": "0%",
+                "contrast": "100%"
+            },
+            "themeColors": {
+                "main_text_color": "rgba(74, 59, 69, 1)",
+                "italics_text_color": "rgba(176, 138, 158, 1)",
+                "underline_text_color": "rgba(240, 128, 170, 1)",
+                "quote_text_color": "rgba(74, 59, 69, 1)",
+                "blur_tint_color": "rgba(253, 241, 245, 1)",
+                "chat_tint_color": "rgba(253, 241, 245, 1)",
+                "border_color": "rgba(244, 206, 223, 1)"
+            }
+        },
+        "vintage-bloom": {
+            "label": "วินเทจบลูม",
+            "vars": {
+                "page": "#F3E6DA",
+                "card": "#FCEFE3",
+                "card-alt": "#F0DCC8",
+                "text": "#5A3826",
+                "text-strong": "#43261A",
+                "text-muted": "#A9836A",
+                "line": "#D8B896",
+                "accent": "#8B4A3C",
+                "accent-rgb": "139, 74, 60",
+                "accent-soft": "#C98F72",
+                "grayscale": "0%",
+                "contrast": "100%"
+            },
+            "themeColors": {
+                "main_text_color": "rgba(90, 56, 38, 1)",
+                "italics_text_color": "rgba(169, 131, 106, 1)",
+                "underline_text_color": "rgba(139, 74, 60, 1)",
+                "quote_text_color": "rgba(90, 56, 38, 1)",
+                "blur_tint_color": "rgba(243, 230, 218, 1)",
+                "chat_tint_color": "rgba(243, 230, 218, 1)",
+                "border_color": "rgba(216, 184, 150, 1)"
+            }
+        },
+        "elegant-manor": {
+            "label": "คฤหาสน์หรูหรา",
+            "vars": {
+                "page": "#EFEAE2",
+                "card": "#FAF7F2",
+                "card-alt": "#E9E1D4",
+                "text": "#3A3232",
+                "text-strong": "#211B1B",
+                "text-muted": "#948A82",
+                "line": "#DCD2C2",
+                "accent": "#5B4470",
+                "accent-rgb": "91, 68, 112",
+                "accent-soft": "#9C86AF",
+                "grayscale": "0%",
+                "contrast": "100%"
+            },
+            "themeColors": {
+                "main_text_color": "rgba(58, 50, 50, 1)",
+                "italics_text_color": "rgba(148, 138, 130, 1)",
+                "underline_text_color": "rgba(91, 68, 112, 1)",
+                "quote_text_color": "rgba(58, 50, 50, 1)",
+                "blur_tint_color": "rgba(239, 234, 226, 1)",
+                "chat_tint_color": "rgba(239, 234, 226, 1)",
+                "border_color": "rgba(220, 210, 194, 1)"
+            }
+        }
+    },
+
+    "defaults": {
+        "mode": "sakura",
+        "proseSize": 17,
+        "proseFont": "'Mali', 'Sarabun', 'Noto Sans', sans-serif",
+        "lineHeight": 1.7,
+        "columnWidth": 640,
+        "indent": 0,
+        "mesIDDisplay_enabled": true,
+        "timer_enabled": true,
+        "message_token_count_enabled": true
+    },
+
+    "controls": ["mode", "proseSize", "proseFont", "lineHeight", "columnWidth", "accent", "stats"]
+}
