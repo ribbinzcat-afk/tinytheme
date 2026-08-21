@@ -106,15 +106,39 @@ body.documentstyle #chat .mes .mes_text {
   margin-left: 0 !important;
 }
 
-/* 3. Avatar — small bust overlapping the box's top-left corner ------------ */
+/* 3. Avatar + meta stats — a small grid: avatar on row 1, message-id /
+   timer / token-count caption on row 2, both centered as a unit and
+   absolutely positioned overlapping the box's top-left corner.
+
+   Why grid and not 3 fixed-offset positions: mesIDDisplay always has
+   content ("#3"); mes_timer and tokenCounterDisplay are frequently empty
+   (no timer on user messages, no token count until the API responds).
+   Anchoring each field at its own fixed px offset looks fine only when
+   all three happen to be present — drop one and the remaining fields
+   don't re-center, they just leave a gap where it used to be. Putting
+   the field that's ALWAYS present in the MIDDLE grid column keeps the
+   caption visually centered under the avatar regardless of which of the
+   other two are actually there (verified pattern — see
+   THEME-AUTHORING.md §5, "แถบสถิติไม่ตรงกลาง avatar"). */
 .mesAvatarWrapper {
-  display: block !important;
+  display: grid !important;
+  grid-template-columns: repeat(3, auto) !important;
+  justify-content: center !important;
+  align-items: center !important;
+  row-gap: 2px !important;
+  column-gap: 4px !important;
   position: absolute !important;
   left: 22px !important;
   top: -26px !important;
   z-index: 4 !important;
   margin: 0 !important;
   padding: 0 !important;
+}
+
+.mesAvatarWrapper .avatar {
+  grid-row: 1 !important;
+  grid-column: 1 / -1 !important;
+  justify-self: center !important;
 }
 
 .mesAvatarWrapper .avatar,
@@ -127,29 +151,91 @@ body.documentstyle #chat .mes .mes_text {
   filter: grayscale(var(--tt-grayscale)) contrast(var(--tt-contrast)) !important;
 }
 
+.mes_timer { grid-row: 2 !important; grid-column: 1 !important; }
+.mesIDDisplay { grid-row: 2 !important; grid-column: 2 !important; }
+.tokenCounterDisplay { grid-row: 2 !important; grid-column: 3 !important; }
+
+.mes_timer:empty, .tokenCounterDisplay:empty {
+  display: none !important;
+}
+
+.mesIDDisplay, .mes_timer, .tokenCounterDisplay {
+  font-size: 9px !important;
+  color: var(--tt-text-muted) !important;
+  opacity: 0.85 !important;
+  white-space: nowrap !important;
+}
+.mes_timer:not(:empty)::after {
+  content: "·" !important;
+  margin-left: 4px !important;
+  opacity: 0.7 !important;
+}
+.tokenCounterDisplay:not(:empty)::before {
+  content: "·" !important;
+  margin-right: 4px !important;
+  opacity: 0.7 !important;
+}
+
 /* 4. Name tag — pill that tabs off the top edge, right of the avatar ------
-   IMPORTANT: do not touch .mes_buttons/.mes_edit_buttons display, and do
-   not anchor them to .ch_name (see THEME-AUTHORING.md §5) — they get
-   their own absolute position in section 6, independent of this tag. */
+   .ch_name itself is a full-width INVISIBLE strip spanning the same 0–
+   100% as .mes (left:0;right:0), not the pill you see — it exists only
+   so position:absolute descendants (the pill, and .mes_buttons in
+   section 6) have a containing block whose width truly matches .mes's,
+   not just whatever the pill's own content-width happens to be. Making
+   .ch_name itself the pill (an earlier version of this file did) meant
+   .mes_buttons — a DOM child of .ch_name — anchored `right` to the
+   PILL's own edge instead of the box's, and since the pill's width
+   depends on how long the character's name is, `right` there landed
+   buttons in a different spot per character, occasionally on top of the
+   name text itself. pointer-events:none here + explicit :auto below
+   keeps the invisible strip from blocking clicks on the message. */
 .ch_name {
+  position: absolute !important;
+  top: -16px !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 0 !important;
+  z-index: 3 !important;
+  pointer-events: none !important;
+}
+
+/* Only the OUTER wrapper (.flex1) gets the pill visual — .alignItemsBaseline
+   isn't an alternate class name for the same element, it's nested ONE
+   LEVEL INSIDE .flex1 (confirmed against the real DOM: .flex1 wraps
+   .alignItemsBaseline, which wraps .name_text/.timestamp). Styling both
+   identically — an earlier version of this file did, copying the pattern
+   from thai-novel-reader without checking it was safe here — put TWO
+   nested position:absolute, background+padding boxes on top of each
+   other: the inner one's `position:absolute` then anchors to the OUTER
+   pill (now itself a positioned ancestor) instead of flowing normally
+   inside it, collapsing the tag to a sliver. thai-novel-reader could get
+   away with applying the same properties to both because those
+   properties (flex-direction/align-items) are harmless when duplicated
+   on nested elements — background/padding/position are not. */
+.ch_name .flex-container.flex1 {
   display: inline-flex !important;
   align-items: center !important;
   gap: 4px !important;
   position: absolute !important;
-  top: -16px !important;
+  top: 0 !important;
   left: 96px !important;
-  max-width: calc(100% - 120px) !important;
-  z-index: 3 !important;
+  max-width: calc(100% - 220px) !important;
+  pointer-events: auto !important;
   background: var(--tt-accent) !important;
   padding: 7px 22px !important;
   border-radius: 999px !important;
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.16) !important;
 }
 
+.ch_name .flex-container.alignItemsBaseline {
+  display: contents !important;
+}
+
 /* Small diamond flourishes at each end of the tag — the CSS-only stand-in
-   for the ornate corner marks seen on real otome dialogue name plates. */
-.ch_name::before,
-.ch_name::after {
+   for the ornate corner marks seen on real otome dialogue name plates.
+   On .flex1 only, for the same reason as above. */
+.ch_name .flex-container.flex1::before,
+.ch_name .flex-container.flex1::after {
   content: "" !important;
   position: absolute !important;
   top: 50% !important;
@@ -159,16 +245,11 @@ body.documentstyle #chat .mes .mes_text {
   transform: translateY(-50%) rotate(45deg) !important;
   pointer-events: none !important;
 }
-.ch_name::before {
+.ch_name .flex-container.flex1::before {
   left: 9px !important;
 }
-.ch_name::after {
+.ch_name .flex-container.flex1::after {
   right: 9px !important;
-}
-
-.ch_name .flex-container.flex1,
-.ch_name .flex-container.alignItemsBaseline {
-  display: contents !important;
 }
 
 .name_text {
@@ -291,31 +372,51 @@ body.documentstyle #chat .mes .mes_text {
   padding: 1px 6px !important;
 }
 
-/* Decorative accent — a small soft heart tucked in the box's corner,
-   the "flourish icon" seen in every otome dialogue box reference. Font
-   Awesome ships with SillyTavern already, so this needs no image asset. */
+/* Decorative accent — a small soft heart, the "flourish icon" seen in
+   every otome dialogue box reference. Font Awesome ships with
+   SillyTavern already, so this needs no image asset.
+   NOT in the bottom-right corner (an earlier version put it there) —
+   core's own swipe-right arrow lives at that exact spot
+   (.swipeRightBlock { position:absolute; right:0; bottom:0 } in
+   style.css) with z-index:9999, so the heart either got buried under it
+   or visibly clashed with it depending on hover state. Top area, well
+   clear of both the name tag (which stops around left:96px+tag width)
+   and the buttons (right:18px, section 6) — a two-corner box only needs
+   one decorative accent, and the top-right shoulder next to the buttons
+   reads as "part of the header," same visual role the corner heart was
+   going for. */
 .mes_block::after {
   content: "\f004" !important;
   font-family: "Font Awesome 6 Free" !important;
   font-weight: 900 !important;
   position: absolute !important;
-  bottom: 14px !important;
-  right: 18px !important;
-  font-size: 15px !important;
+  top: -8px !important;
+  right: 56px !important;
+  font-size: 13px !important;
   color: var(--tt-accent-soft) !important;
-  opacity: 0.55 !important;
+  opacity: 0.65 !important;
   pointer-events: none !important;
+  z-index: 2 !important;
 }
 
-/* 6. Buttons / meta stats — top-right corner of the box, independent of
-   the name tag (see THEME-AUTHORING.md §5 on why not to anchor to
-   .ch_name, and why display must stay untouched). --------------------- */
+/* 6. Buttons — top-right corner of the box, independent of the name tag
+   (see THEME-AUTHORING.md §5 on why not to touch .mes_buttons/
+   .mes_edit_buttons's `display`). .ch_name is the full-width invisible
+   strip from section 4 — position:absolute here resolves `right` against
+   THAT strip's edges, which now match .mes's true edges exactly (not the
+   pill's content-width edges), so this lands in the box's actual corner
+   regardless of how long the character's name is. .ch_name itself is
+   pointer-events:none (section 4), so these need pointer-events:auto
+   explicitly or they'd render but not be clickable. top:30px = the 14px
+   below .mes's own top edge that we actually want, compensating for
+   .ch_name sitting at top:-16px (14 − (−16) = 30). ------------------- */
 .ch_name .mes_buttons,
 .ch_name .mes_edit_buttons {
   position: absolute !important;
-  top: 14px !important;
+  top: 30px !important;
   right: 18px !important;
   opacity: 0.4 !important;
+  pointer-events: auto !important;
   transition: opacity var(--animation-duration, 125ms) ease !important;
 }
 
@@ -340,20 +441,6 @@ body.documentstyle #chat .mes .mes_text {
 .mes_button:hover {
   color: var(--tt-accent) !important;
 }
-
-/* mesIDDisplay / mes_timer / tokenCounterDisplay — small muted row above
-   the buttons, top-right of the box. */
-.mesIDDisplay, .mes_timer, .tokenCounterDisplay, .timestamp-icon {
-  position: absolute !important;
-  top: 38px !important;
-  right: 18px !important;
-  font-size: 10px !important;
-  color: var(--tt-text-muted) !important;
-  opacity: 0.75 !important;
-}
-.mesIDDisplay { right: 76px !important; }
-.mes_timer { right: 46px !important; }
-.tokenCounterDisplay { right: 18px !important; }
 
 /* 7. Core bug workarounds — not related to this theme's own palette,
    found while building thai-novel-reader/line-chat, see
@@ -421,6 +508,37 @@ input[type="checkbox"]::after {
 #left-nav-panel, #right-nav-panel {
   background-color: var(--tt-card) !important;
   color: var(--tt-text) !important;
+}
+
+/* Accordion headers inside those panels (Extensions list, World Info entry
+   groups, etc.) — core's own default is a dark gradient with no text
+   color override, which reads as barely-visible dark-on-dark once this
+   theme's light palette is behind it. */
+.inline-drawer-content {
+  background-color: var(--tt-card-alt) !important;
+  color: var(--tt-text) !important;
+  border: 1px solid var(--tt-line) !important;
+  border-top: none !important;
+  border-radius: 0 0 12px 12px !important;
+}
+.inline-drawer-toggle.inline-drawer-header {
+  background-color: var(--tt-card) !important;
+  color: var(--tt-text-strong) !important;
+  border: 1px solid var(--tt-line) !important;
+  border-radius: 12px !important;
+}
+.inline-drawer-toggle.inline-drawer-header.open {
+  border-radius: 12px 12px 0 0 !important;
+  border-bottom-color: transparent !important;
+}
+/* The Extensions list specifically uses solid accent fills instead —
+   distinguishes "which extension" at a glance in a long scrolling list. */
+#extensions_settings .inline-drawer-toggle.inline-drawer-header,
+#extensions_settings2 .inline-drawer-toggle.inline-drawer-header,
+#user-settings-block h4,
+.standoutHeader {
+  background: var(--tt-accent) !important;
+  color: #FFFFFF !important;
 }
 
 input[type="text"], input[type="search"], input[type="number"],
