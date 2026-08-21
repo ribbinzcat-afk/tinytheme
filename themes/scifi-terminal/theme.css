@@ -1,0 +1,853 @@
+/* ===== Sci-Fi Terminal — theme.css (structure) =====
+   A SillyTavern theme pack for the TinyTheme engine: ONE continuous
+   device screen — #sheld (the app's own outer shell, already
+   position:absolute with a fixed height in core's style.css, and NOT the
+   element that scrolls) becomes a single bezeled terminal/phone panel:
+   dark screen color, glowing border, one persistent CRT scanline+static
+   overlay covering the whole thing. Individual messages are NOT separate
+   bubbles — no per-message background, border or card — just
+   color-coded, left-aligned text lines flowing down the one screen, the
+   way a real terminal log or flip-phone SMS thread reads. An earlier
+   draft of this file gave each paragraph its own glowing bubble (closer
+   to line-chat's messenger look); this version deliberately drops that
+   in favor of a single unbroken screen, per direct request.
+
+   Why #sheld and not #chat for the frame/overlay: #chat is the element
+   that actually scrolls (overflow-y:auto) — an overlay pinned to IT would
+   scroll away with the content. #sheld wraps #chat AND the input box
+   without scrolling itself, so a CRT overlay anchored there stays fixed
+   over the whole visible "glass" regardless of where the chat log is
+   scrolled to, like static on an actual screen rather than ON the paper
+   behind it.
+
+   This file must use ONLY var(--tt-*) — no raw hex. Palette values and
+   @font-face rules are injected separately by the engine.
+   ========================================================================= */
+
+/* 1. Font -------------------------------------------------------------------- */
+body, .mes_text, .mes_text p {
+  font-family: var(--tt-prose-font) !important;
+}
+
+/* 2. #sheld — the one device screen ------------------------------------------
+   Already position:absolute with a real height in core CSS, so it's a
+   stable host for both the bezel styling and the ::after overlay below —
+   no need to declare position ourselves. */
+#sheld {
+  background-color: var(--tt-ui-bg-deep) !important;
+  border: 2px solid rgba(var(--tt-accent-rgb), 0.5) !important;
+  border-radius: 18px !important;
+  box-shadow:
+    0 0 24px rgba(var(--tt-accent-rgb), 0.2),
+    inset 0 0 40px rgba(0, 0, 0, 0.6) !important;
+  overflow: hidden !important;
+}
+
+/* CRT overlay — faint horizontal scanlines + fractal-noise static, once
+   for the whole screen instead of per-message. Both layers bake their
+   own low alpha directly into the pattern (the gradient's rgba stops,
+   the SVG rect's own `opacity`) rather than relying on blend-mode, which
+   keeps this cheap and predictable across browsers. Static noise
+   generated with an inline SVG feTurbulence filter — no external image
+   asset needed, same "no asset files" approach as the rest of this
+   engine (Font Awesome icons, no custom art). z-index above the chat
+   feed and input box, but pointer-events:none so it never blocks clicks
+   or text selection. */
+#sheld::after {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 50 !important;
+  pointer-events: none !important;
+  border-radius: inherit !important;
+  background-image:
+    repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.14) 0px, rgba(0, 0, 0, 0.14) 1px, transparent 1px, transparent 3px),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E") !important;
+}
+
+/* 3. .mes — a header band (avatar + name on row 1, mesID/timer/token
+   stats on row 2 right under the name, online badge on the name row)
+   full width, then message content full-bleed below it, then a footer
+   band housing the swipe arrows — like a phone contact card sitting on
+   top of the terminal screen, per direct reference image.
+   CSS Grid + display:contents (not flex + negative-margin cancellation —
+   that was tried first and abandoned: it depends on exactly matching
+   core's own gap/flex-item bookkeeping, including invisible flex items
+   like .for_checkbox, and even after accounting for those, measured
+   layout still didn't match the arithmetic, most likely more flex-item
+   quirks; grid placement doesn't need any of that arithmetic at all).
+   .mes_block AND .mesAvatarWrapper are both promoted to display:contents
+   so every header element (avatar, name, the 3 separate stat spans)
+   becomes an individually-placeable grid item of .mes, regardless of
+   their original DOM nesting — that's what lets the 3 stat spans (real
+   separate sibling elements, not one block of text) land in their own
+   row/columns instead of stacking on top of each other. Columns 2-4 exist
+   only to give each stat span its own track in row 2; row 1 (name) spans
+   across all of them so it still reads as one continuous name row. */
+.mes {
+  --tt-avatar-col: 60px;
+  --tt-header-gap: 10px;
+  --tt-footer-h: 34px;
+  display: grid !important;
+  grid-template-columns: var(--tt-avatar-col) auto auto auto 1fr !important;
+  column-gap: var(--tt-header-gap) !important;
+  row-gap: 2px !important;
+  align-items: start !important;
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 1px solid rgba(var(--tt-accent-rgb), 0.15) !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  position: relative !important;
+}
+.mes[is_user='false'],
+.mes[is_user='true'] {
+  justify-content: flex-start !important;
+}
+/* Shared header background — spans both header rows (name + stats) and
+   every column, including underneath the avatar, painted behind them
+   (generated content paints first) so the two rows read as ONE seamless
+   box rather than separate avatar/name boxes. */
+.mes::before {
+  content: "" !important;
+  grid-column: 1 / -1 !important;
+  grid-row: 1 / 3 !important;
+  align-self: stretch !important;
+  justify-self: stretch !important;
+  background: var(--tt-ui-bg-soft) !important;
+  border-bottom: 1px solid rgba(var(--tt-accent-rgb), 0.25) !important;
+  position: relative !important;
+  z-index: 0 !important;
+}
+/* Footer band housing the swipe arrows — overlays the bottom edge of
+   THIS message's own content (no reserved padding, no reaching into a
+   neighboring .mes via negative margin). Self-contained per message. */
+.mes::after {
+  content: "" !important;
+  position: absolute !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  height: var(--tt-footer-h) !important;
+  background: var(--tt-ui-bg-soft) !important;
+  border-top: 1px solid rgba(var(--tt-accent-rgb), 0.25) !important;
+  pointer-events: none !important;
+}
+/* Empty core bookkeeping elements (bulk-select checkbox) — 0-size, but
+   without an explicit grid position they'd otherwise auto-place into
+   whatever cell is free and can nudge everything else's auto-placement
+   order; pin them onto the avatar cell where they're harmless. */
+.mes > .for_checkbox,
+.mes > input.del_checkbox {
+  grid-column: 1 !important;
+  grid-row: 1 !important;
+}
+.swipe_left, .swipeRightBlock {
+  z-index: 1 !important;
+}
+
+/* 4. Avatar — own grid item now (wrapper promoted below), spans both
+   header rows so it sits centered beside the name+stats together.
+   Square (soft rounded corners) rather than circular, per reference. ------ */
+.mesAvatarWrapper {
+  display: contents !important;
+}
+.mesAvatarWrapper .avatar {
+  grid-column: 1 !important;
+  grid-row: 1 / 3 !important;
+  align-self: center !important;
+  justify-self: center !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+.mesAvatarWrapper .avatar,
+.mesAvatarWrapper .avatar img {
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 8px !important;
+  object-fit: cover !important;
+  border: 1px solid rgba(var(--tt-accent-rgb), 0.6) !important;
+  box-shadow: 0 0 6px rgba(var(--tt-accent-rgb), 0.4) !important;
+}
+
+/* 5. Message block — promoted so ch_name/mes_text/etc become direct grid
+   items of .mes (see section 3 comment). ------------------------------------- */
+.mes_block {
+  display: contents !important;
+}
+
+/* 6. Speaker name header (row 1) + mesID/timer/token stat line (row 2,
+   directly under the name) + online badge inline with the name. --------- */
+.ch_name {
+  grid-column: 2 / -1 !important;
+  grid-row: 1 !important;
+  display: flex !important;
+  align-items: center !important;
+  width: 100% !important;
+  padding: 8px 14px 2px !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+.ch_name .flex-container.alignItemsBaseline {
+  flex-wrap: wrap !important;
+  row-gap: 2px !important;
+}
+.mesIDDisplay {
+  grid-column: 2 !important;
+  grid-row: 2 !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+.mes_timer {
+  grid-column: 3 !important;
+  grid-row: 2 !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+.tokenCounterDisplay {
+  grid-column: 4 !important;
+  grid-row: 2 !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+.mesIDDisplay, .mes_timer, .tokenCounterDisplay {
+  padding-bottom: 6px !important;
+}
+.mes_timer:not(:empty)::before,
+.tokenCounterDisplay:not(:empty)::before {
+  content: "\00B7" !important;
+  margin-right: 6px !important;
+  opacity: 0.6 !important;
+}
+.name_text {
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  letter-spacing: 1px !important;
+  text-transform: uppercase !important;
+}
+.mes[is_user='false'] .name_text {
+  color: var(--tt-bubble-ai-text) !important;
+  text-shadow: 0 0 4px currentColor !important;
+}
+.mes[is_user='true'] .name_text {
+  color: var(--tt-bubble-user-text) !important;
+  text-shadow: 0 0 4px currentColor !important;
+}
+
+/* Decorative "online" badge on the AI's header — accent-colored glowing
+   pill, added purely as a CSS pseudo-element (SillyTavern has no real
+   per-character online/offline state to hook into). ----------------------- */
+.mes[is_user='false'] .ch_name .flex-container.alignItemsBaseline::after {
+  content: "\25CF ONLINE" !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  margin-left: 10px !important;
+  padding: 2px 10px !important;
+  border-radius: 999px !important;
+  font-size: 9px !important;
+  font-weight: 700 !important;
+  letter-spacing: 1px !important;
+  background: rgba(var(--tt-accent-rgb), 0.12) !important;
+  border: 1px solid rgba(var(--tt-accent-rgb), 0.6) !important;
+  color: var(--tt-accent) !important;
+  text-shadow: 0 0 6px var(--tt-accent), 0 0 2px var(--tt-accent) !important;
+  vertical-align: middle !important;
+}
+
+/* 7. Message text — full-bleed below the header band, filling the whole
+   chat width — the direct request behind this section. Text itself still
+   glows (the "neon" identity of this theme); what's gone is the
+   individual background/border/box-shadow per <p>.
+   Selector is deliberately "every .mes_block child except .ch_name", not
+   a named list (.mes_text, .mes_reasoning_details, ...) — .mes_block is
+   display:contents (section 5), so ANY element another extension appends
+   there (found via a real bug: Chat Arcade's game board adds its own
+   `.arcade-host` div as a sibling of .mes_text) becomes a direct grid
+   item of .mes and, without an explicit grid-column, gets auto-placed
+   into whatever narrow header column is free — squeezing it down to a
+   sliver instead of the full message width. Catching everything but the
+   header by exclusion means this can't silently break again for the next
+   extension that appends its own content the same way. */
+.mes_block > *:not(.ch_name) {
+  grid-column: 1 / -1 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-left: 0 !important;
+  box-sizing: border-box !important;
+}
+.mes_text {
+  background: transparent !important;
+  /* Bottom padding here (not on .mes) keeps the reserved space as part of
+     THIS message's own box, per "overlap its own content, not push the
+     next message down" — the footer band (section 3) still overlaps that
+     padding, it just no longer overlaps actual text: real text was
+     getting cut off/obscured by the solid footer bar on longer messages. */
+  padding: 10px 16px var(--tt-footer-h) !important;
+}
+
+.mes_text p {
+  margin: 0 0 8px 0 !important;
+  line-height: 1.6 !important;
+  word-wrap: break-word !important;
+}
+.mes_text p:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* AI-sent images — .mes_media_wrapper (fixed in section 7 above) is now
+   full message width, but a tall/portrait image capped by core's own
+   `.mes_img { max-height: 40vh }` doesn't need that full width, so it was
+   sitting small and flush-left in a lot of otherwise-empty space. Center
+   it and give it the same neon-framed treatment as everything else. ---- */
+.mes_media_wrapper {
+  display: flex !important;
+  justify-content: center !important;
+  padding: 6px 16px !important;
+}
+.mes_img, .mes_media_wrapper img {
+  border-radius: 10px !important;
+  border: 1px solid rgba(var(--tt-accent-rgb), 0.5) !important;
+  box-shadow: 0 0 14px rgba(var(--tt-accent-rgb), 0.25) !important;
+}
+
+.mes[is_user='false'] .mes_text {
+  color: var(--tt-bubble-ai-text) !important;
+}
+.mes[is_user='false'] .mes_text p {
+  text-shadow: 0 0 2px currentColor, 0 0 5px currentColor !important;
+}
+.mes[is_user='true'] .mes_text {
+  color: var(--tt-bubble-user-text) !important;
+}
+.mes[is_user='true'] .mes_text p {
+  text-shadow: 0 0 2px currentColor, 0 0 5px currentColor !important;
+}
+.mes[is_user='true'] .mes_text q {
+  color: var(--tt-quote-user-text) !important;
+}
+
+/* 8. Time / mesID / token count — one caption line directly under the
+   name (grid-placed in section 6), small, dim, terminal-caption style --- */
+.mes_timer,
+.mesIDDisplay,
+.tokenCounterDisplay {
+  font-size: 10px !important;
+  font-family: var(--tt-prose-font) !important;
+  line-height: 1.2 !important;
+  opacity: 0.6 !important;
+  text-align: left !important;
+}
+
+/* 9. Message action buttons -------------------------------------------------- */
+.mes_buttons {
+  opacity: 0.5 !important;
+}
+.mes_buttons:hover {
+  opacity: 1 !important;
+}
+
+/* 10. Reasoning / Thought Process block -------------------------------------- */
+.mes_reasoning_header {
+  height: 30px !important;
+  border: 1px solid rgba(var(--tt-accent-rgb), 0.5) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 0 6px rgba(var(--tt-accent-rgb), 0.2) !important;
+  color: var(--tt-accent) !important;
+  background: rgba(var(--tt-accent-rgb), 0.08) !important;
+  display: inline-block !important;
+  padding: 0 12px !important;
+  margin-bottom: 8px !important;
+}
+.mes_reasoning {
+  background: var(--tt-reasoning-bg) !important;
+  border: 1px solid rgba(var(--tt-accent-rgb), 0.3) !important;
+  border-radius: 8px !important;
+  padding: 8px 12px !important;
+  font-size: 13px !important;
+}
+
+/* 11. Swipe icons ------------------------------------------------------------- */
+#chat .swipe_right, #chat .swipe_left {
+  width: 24px !important;
+  height: 24px !important;
+  font-size: 18px !important;
+  color: var(--tt-accent) !important;
+  filter: drop-shadow(0 0 4px rgba(var(--tt-accent-rgb), 0.6)) !important;
+}
+
+/* 12. Standout Header --------------------------------------------------------- */
+#extensions_settings .inline-drawer-toggle.inline-drawer-header,
+#extensions_settings2 .inline-drawer-toggle.inline-drawer-header,
+#user-settings-block h4,
+.standoutHeader {
+  background: var(--tt-accent) !important;
+  color: var(--tt-ui-bg-deep) !important;
+  border-radius: 8px !important;
+}
+
+/* 13. Dropdown (select2) ------------------------------------------------------ */
+.select2-container .select2-selection {
+  background-color: var(--tt-ui-bg) !important;
+  color: var(--tt-ui-text) !important;
+  border: 1px solid rgba(var(--tt-accent-rgb), 0.5) !important;
+  border-radius: 8px !important;
+}
+.select2-container .select2-selection__rendered {
+  color: var(--tt-ui-text) !important;
+}
+.select2-dropdown {
+  background-color: var(--tt-ui-bg) !important;
+  border: 1px solid rgba(var(--tt-accent-rgb), 0.5) !important;
+}
+.select2-results__option--highlighted {
+  background-color: var(--tt-accent) !important;
+  color: var(--tt-ui-bg-deep) !important;
+}
+
+/* 14. Text inputs -------------------------------------------------------------- */
+select, .form-control, .ui-widget-content {
+  background-color: var(--tt-ui-bg) !important;
+  color: var(--tt-ui-text) !important;
+  border-radius: 8px !important;
+}
+input[type="text"], input[type="search"], input[type="number"],
+input[type="password"], textarea, .form-control, .text_pole {
+  background-color: var(--tt-ui-bg-soft) !important;
+  color: var(--tt-ui-text) !important;
+  border: 1px solid rgba(var(--tt-accent-rgb), 0.4) !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+}
+input[type="text"]:focus, textarea:focus, .text_pole:focus,
+select:focus, .form-control:focus {
+  border-color: var(--tt-accent) !important;
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(var(--tt-accent-rgb), 0.2) !important;
+}
+
+/* 15. Send form — part of the SAME screen as the chat log now (#sheld
+   supplies the actual device background/bezel/CRT overlay), not its own
+   separately-boxed panel. Just a thin divider line, like the input
+   prompt row at the bottom of a real terminal window. ---------------------- */
+#form_sheld {
+  padding: 6px 12px !important;
+  background: transparent !important;
+  border-top: 1px solid rgba(var(--tt-accent-rgb), 0.3) !important;
+}
+#send_form {
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+}
+#send_form:focus-within {
+  box-shadow: none !important;
+}
+#send_textarea {
+  background: transparent !important;
+  color: var(--tt-bubble-ai-text) !important;
+  caret-color: var(--tt-accent) !important;
+  text-shadow: 0 0 3px currentColor !important;
+}
+
+/* 16. Top bar -------------------------------------------------------------------- */
+#top-bar {
+  box-shadow: none !important;
+  border-bottom: 1px solid rgba(var(--tt-accent-rgb), 0.4) !important;
+  background: var(--tt-ui-bg-deep) !important;
+}
+
+.drawer-icon {
+  color: var(--tt-ui-text) !important;
+}
+.drawer-icon.openIcon {
+  color: var(--tt-accent) !important;
+  filter: drop-shadow(0 0 4px rgba(var(--tt-accent-rgb), 0.6)) !important;
+}
+.drawer-icon.closedIcon {
+  opacity: 0.7 !important;
+}
+.drawer-icon.closedIcon:hover {
+  opacity: 1 !important;
+}
+
+/* 17. Chat area — transparent, so #sheld's own screen background (section
+   2) shows through underneath the message log consistently. -------------- */
+#chat {
+  background: transparent !important;
+  padding: 4px 1% !important;
+  border: none !important;
+  scrollbar-gutter: stable both-edges;
+}
+
+/* 18. Welcome Panel ------------------------------------------------------------ */
+.welcomePanel {
+  background: var(--tt-welcome-bg) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(var(--tt-accent-rgb), 0.5) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 0 30px rgba(var(--tt-accent-rgb), 0.15) !important;
+  color: var(--tt-ui-text) !important;
+  text-shadow: none !important;
+  padding: 30px !important;
+}
+
+/* 19. Hide scrollbar ------------------------------------------------------------- */
+::-webkit-scrollbar {
+  width: 0px !important;
+  background: transparent !important;
+}
+
+/* 20. Responsive ------------------------------------------------------------------ */
+@media (max-width: 768px) {
+  .mes_block {
+    max-width: 82% !important;
+  }
+  .mesAvatarWrapper .avatar,
+  .mesAvatarWrapper .avatar img {
+    width: 34px !important;
+    height: 34px !important;
+  }
+}
+
+/* 21. List, table, code block, inline code — same panel treatment ---------------- */
+.mes_text ul, .mes_text ol {
+  margin: 0 !important;
+  padding: 10px 14px 10px 32px !important;
+  border-radius: 10px !important;
+  width: fit-content !important;
+  max-width: 100% !important;
+}
+.mes[is_user='false'] .mes_text ul, .mes[is_user='false'] .mes_text ol {
+  background-color: var(--tt-bubble-ai-bg) !important;
+  color: var(--tt-bubble-ai-text) !important;
+  border: 1px solid rgba(var(--tt-accent-rgb), 0.5) !important;
+}
+.mes[is_user='true'] .mes_text ul, .mes[is_user='true'] .mes_text ol {
+  background-color: var(--tt-bubble-user-bg) !important;
+  color: var(--tt-bubble-user-text) !important;
+  border: 1px solid currentColor !important;
+}
+
+.mes_text table {
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  border-radius: 10px !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+  width: fit-content !important;
+}
+.mes[is_user='false'] .mes_text table {
+  background-color: var(--tt-bubble-ai-bg) !important;
+  color: var(--tt-bubble-ai-text) !important;
+  border: 1px solid rgba(var(--tt-accent-rgb), 0.5) !important;
+}
+.mes[is_user='true'] .mes_text table {
+  background-color: var(--tt-bubble-user-bg) !important;
+  color: var(--tt-bubble-user-text) !important;
+  border: 1px solid currentColor !important;
+}
+.mes_text th, .mes_text td {
+  border: 1px solid rgba(var(--tt-accent-rgb), 0.3) !important;
+  padding: 6px 14px !important;
+}
+.mes_text th {
+  background: rgba(var(--tt-accent-rgb), 0.12) !important;
+}
+
+.mes_text pre {
+  margin: 0 !important;
+  padding: 0 !important;
+  border-radius: 10px !important;
+  overflow: hidden !important;
+  background: transparent !important;
+  width: fit-content !important;
+  max-width: 100% !important;
+}
+.mes_text pre code {
+  display: block !important;
+  padding: 12px 16px !important;
+  border-radius: 10px !important;
+  font-family: var(--tt-prose-font) !important;
+  font-size: 13px !important;
+  overflow-x: auto !important;
+  white-space: pre !important;
+}
+.mes[is_user='false'] .mes_text pre code {
+  background-color: var(--tt-code-bg) !important;
+  color: var(--tt-code-text) !important;
+  border: 1px solid rgba(var(--tt-accent-rgb), 0.5) !important;
+}
+.mes[is_user='true'] .mes_text pre code {
+  background-color: var(--tt-bubble-user-deep) !important;
+  color: var(--tt-bubble-user-text) !important;
+  border: 1px solid currentColor !important;
+}
+/* Same longhand-vs-shorthand layering trick as the CRT overlay above,
+   plus the highlight.js token-span reset (see THEME-AUTHORING.md §5 —
+   its bundled dark-IDE theme colors each keyword/string/comment span
+   individually, ignoring whatever base color the two rules above set). */
+.mes_text pre code {
+  background-image:
+    repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.16) 0px, rgba(0, 0, 0, 0.16) 1px, transparent 1px, transparent 3px),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E") !important;
+}
+.mes_text pre code.hljs span {
+  color: inherit !important;
+}
+
+.mes[is_user='false'] .mes_text code:not(pre code) {
+  background: rgba(var(--tt-accent-rgb), 0.12) !important;
+  color: var(--tt-inline-code-text) !important;
+  border-radius: 4px !important;
+  padding: 2px 6px !important;
+  font-family: var(--tt-prose-font) !important;
+  font-size: 0.9em !important;
+}
+.mes[is_user='true'] .mes_text code:not(pre code) {
+  background: rgba(0, 0, 0, 0.3) !important;
+  color: var(--tt-bubble-user-text) !important;
+  border-radius: 4px !important;
+  padding: 2px 6px !important;
+  font-family: var(--tt-prose-font) !important;
+  font-size: 0.9em !important;
+}
+
+/* 22. Headings + HR -------------------------------------------------------------- */
+.mes_text h1, .mes_text h2, .mes_text h3,
+.mes_text h4, .mes_text h5, .mes_text h6 {
+  margin: 0 !important;
+  padding: 10px 14px !important;
+  border-radius: 10px !important;
+  line-height: 1.4 !important;
+  width: fit-content !important;
+  max-width: 100% !important;
+  word-wrap: break-word !important;
+  border-bottom: none !important;
+}
+.mes[is_user='false'] .mes_text h1, .mes[is_user='false'] .mes_text h2,
+.mes[is_user='false'] .mes_text h3, .mes[is_user='false'] .mes_text h4,
+.mes[is_user='false'] .mes_text h5, .mes[is_user='false'] .mes_text h6 {
+  background-color: var(--tt-bubble-ai-bg) !important;
+  color: var(--tt-bubble-ai-text) !important;
+  border: 1px solid rgba(var(--tt-accent-rgb), 0.5) !important;
+}
+.mes[is_user='true'] .mes_text h1, .mes[is_user='true'] .mes_text h2,
+.mes[is_user='true'] .mes_text h3, .mes[is_user='true'] .mes_text h4,
+.mes[is_user='true'] .mes_text h5, .mes[is_user='true'] .mes_text h6 {
+  background-color: var(--tt-bubble-user-bg) !important;
+  color: var(--tt-bubble-user-text) !important;
+  border: 1px solid currentColor !important;
+}
+
+.mes_text hr {
+  display: block !important;
+  margin: 14px 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  height: 1px !important;
+  width: 100% !important;
+  border-radius: 0 !important;
+  background: linear-gradient(to right, transparent, rgba(var(--tt-accent-rgb), 0.7), transparent) !important;
+  box-shadow: 0 0 6px rgba(var(--tt-accent-rgb), 0.6) !important;
+}
+
+/* 23. Blockquote ------------------------------------------------------------------ */
+.mes_text blockquote {
+  margin: 0 !important;
+  padding: 10px 14px !important;
+  border-radius: 10px !important;
+  line-height: 1.55 !important;
+  width: fit-content !important;
+  max-width: 100% !important;
+  word-wrap: break-word !important;
+  quotes: none !important;
+}
+.mes[is_user='false'] .mes_text blockquote {
+  background-color: var(--tt-quote-ai-bg) !important;
+  color: var(--tt-bubble-ai-text) !important;
+  border-left: 3px solid var(--tt-accent) !important;
+}
+.mes[is_user='true'] .mes_text blockquote {
+  background-color: var(--tt-bubble-user-deep) !important;
+  color: var(--tt-bubble-user-text) !important;
+  border-left: 3px solid currentColor !important;
+}
+.mes_text blockquote p {
+  background: transparent !important;
+  color: inherit !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  border: none !important;
+  text-shadow: none !important;
+}
+.mes_text blockquote p::before, .mes_text blockquote p::after {
+  display: none !important;
+}
+
+/* 24. Prompt Manager --------------------------------------------------------------- */
+#completion_prompt_manager_list {
+  background-color: var(--tt-ui-bg-soft) !important;
+  border: 1px solid rgba(var(--tt-accent-rgb), 0.3) !important;
+  border-radius: 10px !important;
+  padding: 8px !important;
+  color: var(--tt-ui-text) !important;
+}
+.completion_prompt_manager_prompt {
+  background-color: var(--tt-ui-bg) !important;
+  border: 1px solid rgba(var(--tt-accent-rgb), 0.25) !important;
+  border-radius: 8px !important;
+  margin-bottom: 4px !important;
+  padding: 6px 10px !important;
+  color: var(--tt-ui-text) !important;
+}
+.completion_prompt_manager_prompt:hover {
+  background-color: rgba(var(--tt-accent-rgb), 0.06) !important;
+  border-color: rgba(var(--tt-accent-rgb), 0.5) !important;
+}
+.completion_prompt_manager_header, .completion_prompt_manager_header div,
+.completion_prompt_manager_header span, .completion_prompt_manager_header_advanced,
+.completion_prompt_manager_header_advanced span {
+  color: var(--tt-ui-text) !important;
+  text-shadow: none !important;
+  filter: none !important;
+}
+.completion_prompt_manager_prompt_name, .completion_prompt_manager_prompt_name a {
+  color: var(--tt-ui-text) !important;
+}
+.completion_prompt_manager_prompt_disabled .completion_prompt_manager_prompt_name,
+.completion_prompt_manager_prompt_disabled .completion_prompt_manager_prompt_name a,
+.completion_prompt_manager_prompt_disabled span {
+  color: var(--tt-muted) !important;
+  opacity: 1 !important;
+}
+.completion_prompt_manager_prompt_disabled {
+  background-color: rgba(255, 255, 255, 0.04) !important;
+}
+.prompt-manager-toggle-action.fa-toggle-on {
+  color: var(--tt-accent) !important;
+  filter: drop-shadow(0 0 4px rgba(var(--tt-accent-rgb), 0.5)) !important;
+}
+.prompt-manager-toggle-action.fa-toggle-off {
+  color: var(--tt-muted-deep) !important;
+  filter: none !important;
+}
+
+/* 25. Tags --------------------------------------------------------------------------- */
+.tag, .tagComplete .tag {
+  background-color: rgba(var(--tt-accent-rgb), 0.12) !important;
+  color: var(--tt-ui-text) !important;
+  border: 1px solid rgba(var(--tt-accent-rgb), 0.4) !important;
+  border-radius: 14px !important;
+  padding: 3px 10px !important;
+  box-shadow: none !important;
+}
+.tag_name {
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  color: inherit !important;
+}
+.tag .tag_remove, .tagComplete .tag .tag_remove {
+  color: var(--tt-muted) !important;
+}
+.tag .tag_remove:hover {
+  color: var(--tt-inline-code-text) !important;
+}
+
+/* 26. Drawers -------------------------------------------------------------------------- */
+.inline-drawer-content {
+  background-color: var(--tt-ui-bg-soft) !important;
+  color: var(--tt-ui-text) !important;
+  border: 1px solid rgba(var(--tt-accent-rgb), 0.2) !important;
+  border-top: none !important;
+  border-radius: 0 0 8px 8px !important;
+}
+.inline-drawer-toggle.inline-drawer-header {
+  background-color: var(--tt-ui-bg) !important;
+  color: var(--tt-ui-text) !important;
+  border: 1px solid rgba(var(--tt-accent-rgb), 0.3) !important;
+  border-radius: 8px !important;
+  text-shadow: none !important;
+}
+.inline-drawer-toggle.inline-drawer-header:hover {
+  background-color: rgba(var(--tt-accent-rgb), 0.06) !important;
+}
+.inline-drawer-toggle.inline-drawer-header.open {
+  border-radius: 8px 8px 0 0 !important;
+  border-bottom-color: transparent !important;
+}
+
+/* 27. Send form buttons ------------------------------------------------------------------ */
+#options_button, #extensionsMenuButton, #quickPersona {
+  width: 30px !important;
+  height: 30px !important;
+  min-width: 30px !important;
+  min-height: 30px !important;
+  font-size: 16px !important;
+  padding: 0 !important;
+  margin: 0 2px !important;
+  flex-shrink: 0 !important;
+  align-self: center !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 50% !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  line-height: 1 !important;
+}
+#options_button:hover, #extensionsMenuButton:hover, #quickPersona:hover {
+  background: rgba(var(--tt-accent-rgb), 0.12) !important;
+}
+#rightSendForm {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  flex-shrink: 0 !important;
+  gap: 4px !important;
+  margin-left: 4px !important;
+}
+#rightSendForm > div, #rightSendForm > button {
+  width: 30px !important;
+  height: 30px !important;
+  min-width: 30px !important;
+  min-height: 30px !important;
+  font-size: 16px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  flex-shrink: 0 !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 50% !important;
+  line-height: 1 !important;
+  box-shadow: none !important;
+}
+#rightSendForm [style*="display: none"], #rightSendForm [style*="display:none"] {
+  display: none !important;
+}
+
+/* 28. Core bug workarounds — not related to this theme's own palette, found
+   while building thai-novel-reader/line-chat, see THEME-AUTHORING.md §5. ---- */
+.disabledWIEntry {
+  opacity: 0.6 !important;
+}
+.disabledWIEntry:not(input):hover {
+  opacity: 1 !important;
+}
+select option[disabled]:not(:checked) {
+  color: var(--tt-muted) !important;
+}
+input[type="checkbox"]::after {
+  content: none !important;
+}
+.menu_button {
+  width: auto !important;
+}

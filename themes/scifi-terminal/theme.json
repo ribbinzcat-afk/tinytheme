@@ -1,0 +1,122 @@
+{
+    "id": "scifi-terminal",
+    "name": "Sci-Fi Terminal",
+    "description": "หน้าจอมือถือ/เทอร์มินัลอนาคต ตัวอักษรนีออน ขอบมน มีลายซ่าจอทีวี/สแกนไลน์ทับข้อความ",
+    "author": "Apricity & Claude",
+    "version": "1.0.0",
+
+    "requires": { "chatDisplay": 1 },
+
+    "checkboxTextVar": "ui-text",
+
+    "fontImports": [
+        "https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap"
+    ],
+    "fonts": [],
+
+    "fontChoices": [
+        { "label": "Share Tech Mono (ค่าเริ่มต้น)", "value": "'Share Tech Mono', 'Sarabun', monospace" },
+        { "label": "VT323 (พิกเซล/CRT จัดเต็ม)", "value": "'VT323', 'Sarabun', monospace" },
+        { "label": "Sarabun", "value": "'Sarabun', 'Noto Sans', sans-serif" },
+        { "label": "Noto Sans Thai", "value": "'Noto Sans Thai', 'Noto Sans', sans-serif" }
+    ],
+
+    "modes": {
+        "synthwave": {
+            "label": "ซินธ์เวฟ (ฟ้า/ชมพู)",
+            "vars": {
+                "bubble-user-bg": "#2D0A4E",
+                "bubble-user-tail": "#2D0A4E",
+                "bubble-user-text": "#FF3EC9",
+                "bubble-user-deep": "#1C0630",
+                "bubble-ai-bg": "#0F0A2E",
+                "bubble-ai-tail": "#0F0A2E",
+                "bubble-ai-text": "#39F3FF",
+                "accent": "#39F3FF",
+                "accent-rgb": "57, 243, 255",
+                "checkbox-check": "#0D0221",
+                "ui-bg": "#150A30",
+                "ui-bg-soft": "#1D1042",
+                "ui-bg-deep": "#0D0221",
+                "ui-text": "#E4DBFF",
+                "muted": "#7A6BA8",
+                "muted-deep": "#4A3D73",
+                "italic-text": "#B79CFF",
+                "quote-link-text": "#39F3FF",
+                "quote-user-text": "#FFD6F5",
+                "inline-code-text": "#FFE94A",
+                "code-bg": "#0A0620",
+                "code-text": "#39F3FF",
+                "quote-ai-bg": "#170B38",
+                "reasoning-bg": "rgba(21, 10, 48, 0.85)",
+                "welcome-bg": "rgba(13, 2, 33, 0.88)",
+                "ui-blur-tint": "rgba(13, 2, 33, 0.92)",
+                "chat-tint": "rgba(13, 2, 33, 0.5)"
+            },
+            "themeColors": {
+                "main_text_color": "rgba(228, 219, 255, 1)",
+                "italics_text_color": "rgba(183, 156, 255, 1)",
+                "underline_text_color": "rgba(57, 243, 255, 1)",
+                "quote_text_color": "rgba(57, 243, 255, 1)",
+                "blur_tint_color": "rgba(13, 2, 33, 0.92)",
+                "chat_tint_color": "rgba(13, 2, 33, 0.5)",
+                "border_color": "rgba(57, 243, 255, 0.5)"
+            }
+        },
+        "terminal-green": {
+            "label": "เทอร์มินัลเขียว",
+            "vars": {
+                "bubble-user-bg": "#0F2A0F",
+                "bubble-user-tail": "#0F2A0F",
+                "bubble-user-text": "#9CFF9C",
+                "bubble-user-deep": "#081A08",
+                "bubble-ai-bg": "#0A0F0A",
+                "bubble-ai-tail": "#0A0F0A",
+                "bubble-ai-text": "#33FF33",
+                "accent": "#33FF33",
+                "accent-rgb": "51, 255, 51",
+                "checkbox-check": "#000000",
+                "ui-bg": "#0A0F0A",
+                "ui-bg-soft": "#0F1A0F",
+                "ui-bg-deep": "#000000",
+                "ui-text": "#B6FFB6",
+                "muted": "#2F7A2F",
+                "muted-deep": "#1C4D1C",
+                "italic-text": "#6BCF6B",
+                "quote-link-text": "#33FF33",
+                "quote-user-text": "#DFFFDF",
+                "inline-code-text": "#FFE94A",
+                "code-bg": "#000000",
+                "code-text": "#33FF33",
+                "quote-ai-bg": "#0D150D",
+                "reasoning-bg": "rgba(10, 15, 10, 0.85)",
+                "welcome-bg": "rgba(0, 0, 0, 0.88)",
+                "ui-blur-tint": "rgba(0, 0, 0, 0.92)",
+                "chat-tint": "rgba(0, 0, 0, 0.5)"
+            },
+            "themeColors": {
+                "main_text_color": "rgba(182, 255, 182, 1)",
+                "italics_text_color": "rgba(107, 207, 107, 1)",
+                "underline_text_color": "rgba(51, 255, 51, 1)",
+                "quote_text_color": "rgba(51, 255, 51, 1)",
+                "blur_tint_color": "rgba(0, 0, 0, 0.92)",
+                "chat_tint_color": "rgba(0, 0, 0, 0.5)",
+                "border_color": "rgba(51, 255, 51, 0.5)"
+            }
+        }
+    },
+
+    "defaults": {
+        "mode": "synthwave",
+        "proseSize": 15,
+        "proseFont": "'Share Tech Mono', 'Sarabun', monospace",
+        "lineHeight": 1.5,
+        "columnWidth": 640,
+        "indent": 0,
+        "mesIDDisplay_enabled": true,
+        "timer_enabled": true,
+        "message_token_count_enabled": true
+    },
+
+    "controls": ["mode", "proseSize", "proseFont", "lineHeight", "columnWidth", "accent", "stats"]
+}
