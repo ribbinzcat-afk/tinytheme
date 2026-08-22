@@ -110,5 +110,5 @@
         "message_token_count_enabled": true
     },
 
-    "controls": ["mode", "proseSize", "proseFont", "lineHeight", "columnWidth", "accent", "stats"]
+    "controls": ["mode", "proseSize", "proseFont", "lineHeight", "indent", "accent", "stats"]
 }

@@ -200,13 +200,19 @@ function buildVarsCss(themeId, meta) {
     const proseFont = getThemeSetting(themeId, "proseFont");
     const lineHeight = getThemeSetting(themeId, "lineHeight");
     const columnWidth = getThemeSetting(themeId, "columnWidth");
-    const indent = getThemeSetting(themeId, "indent");
+    // ค่าเริ่มต้น 0 เสมอ (ต่างจากตัวแปรอื่นข้างบนที่ปล่อยว่างถ้าธีมไม่ได้
+    // กำหนด) เพราะ "indent" เป็นตัวควบคุมระดับ engine ที่โชว์ในทุกธีมเสมอ
+    // (ดู populatePanel) — ธีมที่ไม่เคยใส่ "indent" ไว้ใน defaults ของ
+    // theme.json (เช่น line-chat) ต้องยังได้ --tt-indent เป็น 0% แทนที่จะ
+    // ไม่มีตัวแปรนี้เลย ไม่งั้น var(--tt-indent) ในธีมอื่นที่เพิ่มเข้ามาทีหลัง
+    // จะเป็นค่าว่าง/invalid แทนที่จะเป็น "ปิดอยู่" อย่างตั้งใจ
+    const indent = getThemeSetting(themeId, "indent") ?? 0;
 
     if (proseSize !== undefined) lines.push(`  --tt-prose-size: ${proseSize}px;`);
     if (proseFont !== undefined) lines.push(`  --tt-prose-font: ${proseFont};`);
     if (lineHeight !== undefined) lines.push(`  --tt-prose-line-height: ${lineHeight};`);
     if (columnWidth !== undefined) lines.push(`  --tt-column-width: ${columnWidth}px;`);
-    if (indent !== undefined) lines.push(`  --tt-indent: ${indent}%;`);
+    lines.push(`  --tt-indent: ${indent}%;`);
 
     const rootBlock = `:root {\n${lines.join("\n")}\n}`;
 
@@ -291,7 +297,14 @@ function populatePanel($container) {
     }
 
     // ซ่อนแถวควบคุมที่ธีมนี้ไม่รองรับ (theme.json's controls[] เป็น allowlist)
+    // "indent" เป็นข้อยกเว้น — ไม่ใช่ตัวเลือกเฉพาะของธีมใดธีมหนึ่งเหมือน mode/
+    // accent แต่เป็น "การตั้งค่าการอ่าน" ระดับ engine ที่อยากให้ผู้ใช้เปิด-ปิด
+    // ได้กับทุกธีมถ้าต้องการ จึงโชว์เสมอไม่ผ่าน allowlist แม้ theme.json ของ
+    // ธีมนั้นจะไม่ได้ระบุ "indent" ไว้ใน controls[] ก็ตาม — ธีมใหม่ในอนาคตก็
+    // ได้ตัวเลือกนี้ฟรีโดยไม่ต้องจำไปเพิ่มเอง (ธีมยังคุมได้อยู่ว่า
+    // var(--tt-indent) จะถูกใช้จริงหรือไม่ผ่าน theme.css ของตัวเอง).
     const allowed = new Set(meta.controls || []);
+    allowed.add("indent");
     $container.find("[data-control]").each(function () {
         const key = $(this).data("control");
         $(this).toggle(allowed.has(key));
@@ -323,7 +336,7 @@ function populatePanel($container) {
     $container.find(".tinytheme-column-width-slider").val(columnWidth);
     $container.find(".tinytheme-column-width-value").text(`${columnWidth}px`);
 
-    const indent = getThemeSetting(activeThemeId, "indent");
+    const indent = getThemeSetting(activeThemeId, "indent") ?? 0;
     $container.find(".tinytheme-indent-slider").val(indent);
     $container.find(".tinytheme-indent-value").text(`${indent}%`);
 

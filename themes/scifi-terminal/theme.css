@@ -288,9 +288,16 @@ body, .mes_text, .mes_text p {
 }
 
 .mes_text p {
+  text-indent: var(--tt-indent) !important;
   margin: 0 0 8px 0 !important;
   line-height: 1.6 !important;
   word-wrap: break-word !important;
+}
+.mes_text blockquote p,
+.mes_text li p,
+.mes_text td p,
+.mes_text th p {
+  text-indent: 0 !important;
 }
 .mes_text p:last-child {
   margin-bottom: 0 !important;

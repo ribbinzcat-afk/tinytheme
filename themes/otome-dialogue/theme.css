@@ -57,8 +57,7 @@ body {
 .mes {
   display: block !important;
   width: 100% !important;
-  max-width: var(--tt-column-width) !important;
-  margin: 44px auto 20px auto !important;
+  margin: 44px 0 20px 0 !important;
   padding: 30px 26px 24px 26px !important;
   background: var(--tt-card) !important;
   border: 2px solid var(--tt-line) !important;
@@ -141,13 +140,31 @@ body.documentstyle #chat .mes .mes_text {
   justify-self: center !important;
 }
 
-.mesAvatarWrapper .avatar,
-.mesAvatarWrapper .avatar img {
+/* Only the OUTER .avatar div carries the size + border + radius; .avatar
+   img fills it at 100%/100% with NO border of its own. Giving both the
+   SAME fixed px size + border used to make the child bigger than the
+   parent's actual content-box: box-sizing:border-box shrinks the parent's
+   content area by its own border width (60px outer → 54px inside), but
+   the child img was ALSO forced to the full 60px, so it overflowed the
+   parent's circle by exactly the border width on every side — a visible
+   "double circle" ghosted behind the real frame, worse at the smaller
+   mobile size below. overflow:hidden on the parent is the actual clip;
+   100%/100% + no border on the img is what keeps it from ever being
+   bigger than whatever the parent resolves to at any breakpoint. */
+.mesAvatarWrapper .avatar {
   width: 60px !important;
   height: 60px !important;
   border-radius: 50% !important;
   border: 3px solid var(--tt-card) !important;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.18) !important;
+  overflow: hidden !important;
+}
+.mesAvatarWrapper .avatar img {
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 50% !important;
+  border: none !important;
+  object-fit: cover !important;
   filter: grayscale(var(--tt-grayscale)) contrast(var(--tt-contrast)) !important;
 }
 
@@ -293,10 +310,19 @@ body.documentstyle #chat .mes .mes_text {
 }
 
 .mes_text p {
+  text-indent: var(--tt-indent) !important;
   margin: 0 0 12px 0 !important;
 }
 .mes_text p:last-child {
   margin-bottom: 0 !important;
+}
+/* keep the indent from leaking into nested contexts (quotes/lists/tables) —
+   same reasoning as thai-novel-reader, see THEME-AUTHORING.md §5. */
+.mes_text blockquote p,
+.mes_text li p,
+.mes_text td p,
+.mes_text th p {
+  text-indent: 0 !important;
 }
 
 .mes_text em, .mes_text i {
@@ -372,6 +398,47 @@ body.documentstyle #chat .mes .mes_text {
   padding: 1px 6px !important;
 }
 
+/* 5b. Reasoning / "think" block — a soft collapsible note above the
+   dialogue text, styled like a small inset card rather than the dialogue
+   box's own pastel-pill language (keeps it visually distinct from actual
+   spoken dialogue). Was missing entirely; nothing here fell back to core's
+   own dark-IDE-toned default, which clashed hard against this theme's
+   light card palette. -------------------------------------------------- */
+.mes_reasoning_header {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  height: 28px !important;
+  padding: 0 12px !important;
+  margin-bottom: 8px !important;
+  background: var(--tt-card-alt) !important;
+  border: 1px dashed var(--tt-line) !important;
+  border-radius: 999px !important;
+  color: var(--tt-text-muted) !important;
+  font-size: 12px !important;
+}
+.mes_reasoning_arrow {
+  color: var(--tt-accent) !important;
+}
+.mes_reasoning {
+  background: var(--tt-card-alt) !important;
+  border: 1px dashed var(--tt-line) !important;
+  border-radius: 12px !important;
+  padding: 10px 14px !important;
+  margin-bottom: 10px !important;
+  color: var(--tt-text-muted) !important;
+  font-size: 0.92em !important;
+  font-style: italic !important;
+}
+.mes_reasoning_actions .mes_button,
+.mes_reasoning_actions .menu_button {
+  color: var(--tt-text-muted) !important;
+}
+.mes_reasoning_actions .mes_button:hover,
+.mes_reasoning_actions .menu_button:hover {
+  color: var(--tt-accent) !important;
+}
+
 /* Decorative accent — a small soft heart, the "flourish icon" seen in
    every otome dialogue box reference. Font Awesome ships with
    SillyTavern already, so this needs no image asset.
@@ -423,6 +490,22 @@ body.documentstyle #chat .mes .mes_text {
 .mes:hover .mes_buttons,
 .mes:hover .mes_edit_buttons {
   opacity: 1 !important;
+}
+
+/* Swipe arrows — heart glyph instead of the default chevrons, per direct
+   request. core renders the chevron via Font Awesome's OWN ::before rule
+   on the .fa-chevron-left/.fa-chevron-right classes already present on
+   these elements (e.g. `.fa-chevron-right::before { content: "\f054" }`);
+   overriding ::before directly here (same technique, just a different
+   glyph + font weight) replaces it without touching core's markup. */
+.swipe_left::before,
+.swipe_right::before {
+  content: "\f004" !important;
+  font-family: "Font Awesome 6 Free" !important;
+  font-weight: 900 !important;
+}
+.swipe_left, .swipe_right {
+  color: var(--tt-accent) !important;
 }
 
 .ch_name .mes_buttons,
@@ -634,11 +717,19 @@ input[type="text"]:focus, textarea:focus, .text_pole:focus {
   .mesAvatarWrapper {
     left: 14px !important;
   }
-  .mesAvatarWrapper .avatar, .mesAvatarWrapper .avatar img {
+  .mesAvatarWrapper .avatar {
     width: 50px !important;
     height: 50px !important;
   }
-  .ch_name {
+  /* .ch_name itself must stay left:0/right:0 (the full-width invisible
+     strip — see section 4's comment) at every breakpoint; it's the PILL
+     (.flex1) that needs to shift/shrink to match the smaller mobile
+     avatar. An earlier version of this rule targeted .ch_name directly,
+     which broke the strip's width and, since the pill's own max-width is
+     a % of *that*, collapsed the pill down to a sliver too narrow for the
+     name text to render at all (0-width name_text, clipped to nothing by
+     its own overflow:hidden/ellipsis). */
+  .ch_name .flex-container.flex1 {
     left: 78px !important;
     max-width: calc(100% - 96px) !important;
   }
